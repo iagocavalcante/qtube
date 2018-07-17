@@ -1,5 +1,5 @@
 import { app, BrowserWindow } from 'electron'
-
+import server from './server/server.js'
 /**
  * Set `__statics` path to static files in production;
  * The reason we are setting it here is that the path needs to be evaluated at runtime
@@ -25,6 +25,8 @@ function createWindow () {
   mainWindow.on('closed', () => {
     mainWindow = null
   })
+
+  server.listen(__statics)
 }
 
 app.on('ready', createWindow)

@@ -12,7 +12,12 @@
   },
   "dependencies": {
     "axios": "^0.18.0",
-    "vue-i18n": "^7.3.3"
+    "body-parser": "^1.18.3",
+    "cors": "^2.8.4",
+    "express": "^4.16.3",
+    "vue-i18n": "^7.3.3",
+    "ytdl-core": "^0.20.4",
+    "request": "^2.87.0"
   },
   "devDependencies": {
     "babel-eslint": "^8.2.1",

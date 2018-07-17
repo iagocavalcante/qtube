@@ -5,21 +5,24 @@
       icon-color="purple"
       class="col-8"
     >
-      <q-input inverted v-model="youtubeUrl" color="purple" stack-label="Video URL" />
+      <q-input inverted v-model="youtubeUrl" color="purple" stack-label="Video URL" required/>
     </q-field>
+    <q-ajax-bar ref="bar" :position="'bottom'" color="purple" :size="'18px'"/>
     <div class="flex flex-center q-pa-sm">
       <q-btn
         class="col-5"
         color="purple"
         size="lg"
         label="Download"
-      />
+        :loading="isDisable"
+        @click="downloadVideo()"
+      >
+        <span slot="loading">
+          <q-spinner-hourglass class="on-left" />
+        </span>
+      </q-btn>
     </div>
-    <!-- <q-btn round class="on-right" color="purple">
-      <q-icon name="build" />
-    </q-btn> -->
     <q-btn-dropdown  icon="build" class="on-right round" color="purple">
-      <!-- dropdown content -->
       <q-list link>
         <q-item>
           <q-item-side icon="settings" inverted color="purple" />
@@ -52,7 +55,27 @@ export default {
   name: 'PageIndex',
   data () {
     return {
-      youtubeUrl: ''
+      youtubeUrl: '',
+      isDisable: false
+    }
+  },
+  methods: {
+    downloadVideo () {
+      this.isDisable = true
+      this.$refs.bar.start()
+      this.$axios.post('http://localhost:3000/api/download', { youtubeUrl: this.youtubeUrl })
+        .then(data => {
+          this.isDisable = false
+          this.youtubeUrl = ''
+          this.$refs.bar.stop()
+          console.log(data)
+        })
+        .catch(err => {
+          this.isDisable = false
+          this.youtubeUrl = ''
+          this.$refs.bar.stop()
+          console.log(err)
+        })
     }
   }
 }
