@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, ipcMain } from 'electron'
 import server from './server/server.js'
 /**
  * Set `__statics` path to static files in production;
@@ -17,17 +17,29 @@ function createWindow () {
   mainWindow = new BrowserWindow({
     width: 1000,
     height: 600,
-    useContentSize: true
+    useContentSize: true,
+    // frame: false,
   })
 
+  
   mainWindow.loadURL(process.env.APP_URL)
-
+  
   mainWindow.on('closed', () => {
     mainWindow = null
   })
-
+  
   server.listen(__statics)
 }
+
+ipcMain.on('close-app', (event) => {
+  if (process.platform !== 'darwin') {
+    app.quit()
+  }
+})
+
+ipcMain.on('minimize', (event) => {
+  mainWindow.minimize()
+})
 
 app.on('ready', createWindow)
 

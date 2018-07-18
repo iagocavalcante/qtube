@@ -19,10 +19,11 @@
             </q-card-title>
             <q-card-separator />
             <q-card-actions>
-              <q-btn flat color="white">
+              <q-btn @click="goTo(info)">
                 <q-icon class="q-mr-sm" name="play_circle_filled">
                 </q-icon>
-                VIEW</q-btn>
+                VIEW
+              </q-btn>
             </q-card-actions>
           </q-card>
         </div>
@@ -55,6 +56,14 @@ export default {
           this.$refs.bar.stop()
           console.log(err)
         })
+    },
+    goTo (info) {
+      this.videoSelect(info)
+      this.$router.push({ name: 'player', params: { src: info.src, img: info.thumbnail } })
+      // this.$router.push(`player/${info.src}/${info.thumbnail}`)
+    },
+    videoSelect (info) {
+      window.localStorage.setItem('video', JSON.stringify(info))
     }
   }
 }
