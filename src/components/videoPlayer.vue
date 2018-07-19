@@ -1,11 +1,15 @@
 <template>
-  <video-player class="video-player-box"
+  <!-- <video-player class="video-player-box"
     ref="videoPlayer"
     :options="playerOptions"
     :playsinline="true"
     @ready="playerIsReady"
     @changed="playerStateChanged($event)">
-  </video-player>
+  </video-player> -->
+  <q-video
+    :src="src"
+    style="width: 853px; height: 480px"
+  />
 </template>
 
 <script>
@@ -41,9 +45,9 @@ export default {
         playbackRates: [0.7, 1.0, 1.5, 2.0],
         sources: [{
           type: 'video/mp4',
-          src: this.$props.src
+          src: ''
         }],
-        poster: this.$props.img
+        poster: ''
       }
     }
   },

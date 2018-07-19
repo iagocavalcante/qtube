@@ -20,6 +20,7 @@
 
 <script>
 import { ipcRenderer } from 'electron'
+
 export default {
   name: 'LayoutDefault',
   data () {
@@ -35,6 +36,7 @@ export default {
   },
   mounted () {
     this.videoSelected()
+    this.initialize()
   },
   methods: {
     closeApp () {
@@ -47,6 +49,12 @@ export default {
       const selected = JSON.parse(window.localStorage.getItem('video'))
       this.path.params.src = selected.src
       this.path.params.img = selected.thumbnail
+    },
+    initialize () {
+      ipcRenderer.sendSync('createYtDownFolder')
+      ipcRenderer.sendSync('createVideosFolder')
+      ipcRenderer.sendSync('createDatabaseFolder')
+      ipcRenderer.sendSync('createFileDatabase')
     }
   }
 }

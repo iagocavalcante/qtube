@@ -33,6 +33,7 @@
 </template>
 
 <script>
+
 export default {
   name: 'VideoPage',
   data () {

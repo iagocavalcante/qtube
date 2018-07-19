@@ -1,12 +1,14 @@
 <template>
   <q-page class="flex flex-center">
-    <video-player :src="`statics/${src}`" :img="`statics/${img}`">
+    <video-player :src="src" :img="img">
     </video-player>
   </q-page>
 </template>
 
 <script>
 import videoPlayer from './../components/videoPlayer'
+import { ipcRenderer } from 'electron'
+
 export default {
   name: 'Player',
   components: {
@@ -15,12 +17,15 @@ export default {
   data () {
     return {
       src: '',
-      img: ''
+      img: '',
+      videosFolder: ipcRenderer.sendSync('getFolderApp')
     }
   },
   mounted () {
-    this.src = this.$route.params.src
-    this.img = this.$route.params.img
+    console.log(ipcRenderer.sendSync('getFolderApp'))
+    this.src = `${this.videosFolder}/${this.$route.params.src}`
+    this.img = `${this.videosFolder}/${this.$route.params.img}`
+    console.log(this.src)
   }
 }
 </script>

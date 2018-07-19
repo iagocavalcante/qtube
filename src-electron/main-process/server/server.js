@@ -20,9 +20,10 @@ export const listen = (__statics) => {
   app.post('/api/download', async (req, res) => {
     try {
       const info = await getInfoVideo(req.body.youtubeUrl.replace('https://www.youtube.com/watch?v=', ''))
-      modules.manipulateFiles.createDir(path.join(__statics, `videos/${info.title}/`))
+      const title = info.title.replace(/[!?@#$%^&*|\.\;]/g, "")
+      modules.manipulateFiles.createDir(path.join(__statics, `videos/${title}/`))
       ytdl(req.body.youtubeUrl)
-        .pipe(fs.createWriteStream(path.join(__statics, `videos/${info.title}/${info.title.replace('!!', '').replace('|', '').replace('|', '').replace(',', '').replace('|', '')}.mp4`)))
+        .pipe(fs.createWriteStream(path.join(__statics, `videos/${title}/${title}.mp4`)))
         .on('finish', () => {
           request.post('http://localhost:3000/api/thumbnail', { form: { info: info } })
           res.status(200).json({ video: `ok` })
@@ -43,7 +44,8 @@ export const listen = (__statics) => {
   
   app.post('/api/thumbnail', (req, res) => {
     const info = req.body.info
-    request.get(info.thumbnail_url).pipe(fs.createWriteStream(path.join(__statics, `videos/${info.title}/${info.title}.jpg`)))
+    const title = info.title.replace(/[!?@#$%^&*|\.\;]/g, "")
+    request.get(info.thumbnail_url).pipe(fs.createWriteStream(path.join(__statics, `videos/${title}/${title}.jpg`)))
       .on('finish', () => {
         request.post('http://localhost:3000/api/insert', { form: { info: info } })
         res.status(200).json({ img: `ok` })
@@ -52,11 +54,12 @@ export const listen = (__statics) => {
   
   app.post('/api/insert', (req, res) => {
     const info = req.body.info
+    const title = info.title.replace(/[!?@#$%^&*|\.\;]/g, "")
     const ytdown = {
-      title: info.title,
+      title: title,
       description: info.description,
-      thumbnail: `videos/${info.title}/${info.title}.jpg`,
-      src: `videos/${info.title}/${info.title}.mp4`
+      thumbnail: `videos/${title}/${title}.jpg`,
+      src: `videos/${title}/${title}.mp4`
     }
     let yt = {}
     fs.readFile(path.join(__statics, 'database/ytdown.json'), function (err, content) {
