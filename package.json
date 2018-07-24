@@ -1,9 +1,9 @@
 {
-  "name": "ytdown",
+  "name": "qtube",
   "version": "1.0.0",
   "description": "App to copy link and paste, download from youtube",
-  "productName": "YoTDownload",
-  "cordovaId": "org.cordova.quasar.app",
+  "productName": "QTube",
+  "cordovaId": "br.com.qtube.app",
   "author": "Iago Cavalcante <iagoangelimc@gmail.com>",
   "private": true,
   "scripts": {
@@ -16,6 +16,7 @@
     "cors": "^2.8.4",
     "electron-store": "^2.0.0",
     "express": "^4.16.3",
+    "fluent-ffmpeg": "^2.1.2",
     "request": "^2.87.0",
     "video.js": "^7.0.5",
     "vue-i18n": "^7.3.3",

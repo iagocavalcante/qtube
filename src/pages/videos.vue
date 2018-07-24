@@ -2,11 +2,11 @@
   <q-page>
     <q-page-container>
       <q-ajax-bar ref="bar"/>
-      <div class="row">
+      <div class="row" v-if="checkDatabase">
         <div class="col-md-3 row justify-center q-mb-md" :key="index" v-for="(info, index) of infos">
           <q-card inline class="col-md-10" color="purple">
             <q-card-media>
-              <img :src="`statics/${info.thumbnail}`">
+              <img :src="`${appFolder}${info.thumbnail}`">
             </q-card-media>
             <q-card-title class="relative-position">
               <div class="ellipsis q-caption" :title="info.title">
@@ -28,17 +28,27 @@
           </q-card>
         </div>
       </div>
+      <div class="row" v-else>
+        <div class="col-md-12 row justify-center q-mb-md">
+          <q-card inline class="col-md-10" color="purple">
+            <h2>Don't find any videos in your app!!</h2>
+          </q-card>
+        </div>
+      </div>
     </q-page-container>
   </q-page>
 </template>
 
 <script>
+import { ipcRenderer } from 'electron'
 
 export default {
   name: 'VideoPage',
   data () {
     return {
-      infos: []
+      infos: [],
+      checkDatabase: false,
+      appFolder: ipcRenderer.sendSync('getFolderApp')
     }
   },
   mounted () {
@@ -49,8 +59,9 @@ export default {
       this.$refs.bar.start()
       this.$axios.get('http://localhost:3000/api/infos')
         .then(data => {
-          this.infos = data.data.ytdown
-          console.log(this.infos)
+          this.infos = data.data.videos
+          if (this.infos.length) this.checkDatabase = true
+          else this.checkDatabase = false
           this.$refs.bar.stop()
         })
         .catch(err => {
@@ -61,10 +72,9 @@ export default {
     goTo (info) {
       this.videoSelect(info)
       this.$router.push({ name: 'player', params: { src: info.src, img: info.thumbnail } })
-      // this.$router.push(`player/${info.src}/${info.thumbnail}`)
     },
     videoSelect (info) {
-      window.localStorage.setItem('video', JSON.stringify(info))
+      window.localStorage.setItem('media', JSON.stringify(info))
     }
   }
 }

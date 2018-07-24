@@ -4,7 +4,7 @@ module.exports = function (ctx) {
   return {
     // app plugins (/src/plugins)
     plugins: [
-      'i18n',
+      // 'i18n',
       'axios',
       'video-player'
     ],
@@ -84,7 +84,7 @@ module.exports = function (ctx) {
         'Notify'
       ],
       // iconSet: ctx.theme.mat ? 'material-icons' : 'ionicons'
-      i18n: 'pt-Br' // Quasar language
+      // i18n: 'pt-Br' // Quasar language
     },
     // animations: 'all' --- includes all animations
     animations: [

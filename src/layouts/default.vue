@@ -6,6 +6,7 @@
       >
         <q-route-tab slot="title" to="/index" icon="get_app" replace label="Download" />
         <q-route-tab slot="title" to="/videos" icon="perm_media" replace label="Videos" />
+        <q-route-tab slot="title" to="/musics" icon="queue_music" replace label="Musics" />
         <q-route-tab slot="title" :to="path" icon="theaters" replace label="Player" />
         <q-tab class="minimize" slot="title" @click="minimizeApp()" icon="minimize" replace label="Minimize" />
         <q-tab class="absolute-right" slot="title" @click="closeApp()" icon="power_settings_new" replace label="Poweroff" />
@@ -46,13 +47,16 @@ export default {
       ipcRenderer.send('minimize')
     },
     videoSelected () {
-      const selected = JSON.parse(window.localStorage.getItem('video'))
-      this.path.params.src = selected.src
-      this.path.params.img = selected.thumbnail
+      const selected = JSON.parse(window.localStorage.getItem('media'))
+      if (selected) {
+        this.path.params.src = selected.src
+        this.path.params.img = selected.thumbnail
+      }
     },
     initialize () {
       ipcRenderer.sendSync('createYtDownFolder')
       ipcRenderer.sendSync('createVideosFolder')
+      ipcRenderer.sendSync('createMusicFolder')
       ipcRenderer.sendSync('createDatabaseFolder')
       ipcRenderer.sendSync('createFileDatabase')
     }

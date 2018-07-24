@@ -9,7 +9,8 @@ if (process.env.PROD) {
   global.__statics = require('path').join(__dirname, 'statics').replace(/\\/g, '\\\\')
 }
 
-const path = `${app.getPath('documents')}/Ytdown/`.replace(/\\/g, '/')
+const defaultPath = `${app.getPath('downloads')}/Ytdown/`.replace(/\\/g, '/')
+
 let mainWindow
 
 function createWindow () {
@@ -33,7 +34,7 @@ function createWindow () {
     mainWindow = null
   })
   
-  server.listen(path)
+  server.listen(defaultPath)
 }
 
 ipcMain.on('close-app', (event) => {
@@ -47,9 +48,6 @@ ipcMain.on('minimize', (event) => {
 })
 
 ipcMain.on('createYtDownFolder', function (event) {
-  //check if the default folder exists
-  let defaultPath = app.getPath('documents') + '/Ytdown'
-  defaultPath = defaultPath.replace(/\\/g, '/') //replaces "frontlaces" with backslashes
 
   if (!fs.existsSync(defaultPath)) { //check if default folder already exists
     fs.mkdirSync(defaultPath, '0o765')
@@ -61,8 +59,7 @@ ipcMain.on('createYtDownFolder', function (event) {
 })
 
 ipcMain.on('createVideosFolder', function (event) {
-  let videosPath = app.getPath('documents') + '/Ytdown/videos'
-  videosPath = videosPath.replace(/\\/g, '/') //replaces "frontlaces" with backslashes
+  const videosPath = `${defaultPath}/videos`.replace(/\\/g, '/')
   if (!fs.existsSync(videosPath)) { //check if default folder already exists
     fs.mkdirSync(videosPath, '0o765')
     event.returnValue = videosPath
@@ -72,8 +69,7 @@ ipcMain.on('createVideosFolder', function (event) {
 })
 
 ipcMain.on('createDatabaseFolder', function (event) {
-  let databasePath = app.getPath('documents') + '/Ytdown/database'
-  databasePath = databasePath.replace(/\\/g, '/') //replaces "frontlaces" with backslashes
+  const databasePath = `${defaultPath}/database`.replace(/\\/g, '/')
   if (!fs.existsSync(databasePath)) { //check if default folder already exists
     fs.mkdirSync(databasePath, '0o765')
     event.returnValue = databasePath
@@ -82,12 +78,22 @@ ipcMain.on('createDatabaseFolder', function (event) {
   }
 })
 
+ipcMain.on('createMusicFolder', function (event) {
+  const musicsPath = `${defaultPath}/musics`.replace(/\\/g, '/')
+  if (!fs.existsSync(musicsPath)) { //check if default folder already exists
+    fs.mkdirSync(musicsPath, '0o765')
+    event.returnValue = musicsPath
+  } else {
+    event.returnValue = musicsPath
+  }
+})
+
 ipcMain.on('createFileDatabase', function (event) {
-  let databasePath = app.getPath('documents') + '/Ytdown/database'
-  databasePath = databasePath.replace(/\\/g, '/') //replaces "frontlaces" with backslashes
+  const databasePath = `${defaultPath}/database`.replace(/\\/g, '/')
   if (!fs.existsSync(`${databasePath}/ytdown.json`)) {
     const yt = {
-      ytdown: []
+      videos: [],
+      musics: [],
     }
     fs.writeFileSync(`${databasePath}/ytdown.json`, JSON.stringify(yt))
     event.returnValue = `${databasePath}/ytdown.json`
@@ -97,8 +103,6 @@ ipcMain.on('createFileDatabase', function (event) {
 })
 
 ipcMain.on('getFolderApp', (event) => {
-  let defaultPath = app.getPath('documents') + '/Ytdown'
-  defaultPath = defaultPath.replace(/\\/g, '/') //replaces "frontlaces" with backslashes
   event.returnValue = defaultPath
 })
 
