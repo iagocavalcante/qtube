@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow, ipcMain, autoUpdater, dialog } from 'electron'
 import server from './server/server.js'
 import fs from 'fs'
 /**
@@ -12,6 +12,60 @@ if (process.env.PROD) {
 const defaultPath = `${app.getPath('downloads')}/Ytdown/`.replace(/\\/g, '/')
 
 let mainWindow
+
+const urlUpdate = 'https://api.github.com/repos/iagocavalcante/qtube/releases/latest'
+
+const startAutoUpdater = (squirrelUrl) => {
+  autoUpdater.setFeedURL(squirrelUrl)
+
+  autoUpdater.on('update-downloaded', (event, releaseNotes, releaseName) => {
+    const dialogOpts = {
+      type: 'info',
+      buttons: ['Restart', 'Later'],
+      title: 'Application Update',
+      message: process.platform === 'win32' ? releaseNotes : releaseName,
+      detail: 'A new version has been downloaded. Restart the application to apply the updates.'
+    }
+
+    dialog.showMessageBox(dialogOpts, (response) => {
+      if (response === 0) autoUpdater.quitAndInstall()
+    })
+  })
+
+  autoUpdater.on('error', message => {
+    console.error('There was a problem updating the application')
+    console.error(message)
+  })
+
+
+  setInterval(() => {
+    autoUpdater.checkForUpdates()
+  }, 60000)
+}
+
+const handleSquirrelEvent = () => {
+  if (process.argv.length === 1) {
+    return false;
+  }
+
+  const squirrelEvent = process.argv[1];
+  switch (squirrelEvent) {
+    case '--squirrel-install':
+    case '--squirrel-updated':
+    case '--squirrel-uninstall':
+      setTimeout(app.quit, 1000);
+      return true;
+
+    case '--squirrel-obsolete':
+      app.quit();
+      return true;
+  }
+}
+
+if (handleSquirrelEvent()) {
+  // squirrel event handled and app will exit in 1000ms, so don't do anything else
+  app.quit();
+}
 
 function createWindow () {
   /**
@@ -33,7 +87,7 @@ function createWindow () {
   mainWindow.on('closed', () => {
     mainWindow = null
   })
-  
+
   server.listen(defaultPath)
 }
 

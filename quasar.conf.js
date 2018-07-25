@@ -153,6 +153,13 @@ module.exports = function (ctx) {
         // https://www.electron.build/configuration/configuration
 
         // appId: 'quasar-app'
+        win: {
+          target: 'nsis',
+          arch: [
+            'x64',
+            'ia32'
+          ]
+        }
       }
     }
   }

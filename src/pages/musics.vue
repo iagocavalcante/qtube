@@ -31,7 +31,7 @@
       <div class="row" v-else>
         <div class="col-md-12 row justify-center q-mb-md">
           <q-card inline class="col-md-10" color="purple">
-            <h2>Don't find any videos in your app!!</h2>
+            <h2>Don't find any musics in your app!!</h2>
           </q-card>
         </div>
       </div>

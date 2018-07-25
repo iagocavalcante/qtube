@@ -69,7 +69,7 @@ export default {
 display: none;
 }
 .minimize {
-  margin-left: 29em;
+  margin-left: 22em;
 }
 .background{
   background: #fff url(../statics/darkrola.jpeg);
