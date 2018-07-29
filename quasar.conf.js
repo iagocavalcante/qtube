@@ -152,7 +152,11 @@ module.exports = function (ctx) {
       builder: {
         // https://www.electron.build/configuration/configuration
 
-        // appId: 'quasar-app'
+        appId: 'qtube',
+        publish: {
+          provider: 'github',
+          token: 'f9d20ff877242320642501f3ee074333c885ee3a'
+        }
       }
     }
   }

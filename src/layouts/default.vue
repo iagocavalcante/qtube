@@ -8,6 +8,7 @@
         <q-route-tab slot="title" to="/videos" icon="perm_media" replace label="Videos" />
         <q-route-tab slot="title" to="/musics" icon="queue_music" replace label="Musics" />
         <q-route-tab slot="title" :to="path" icon="theaters" replace label="Player" />
+        <q-tab class="updates" slot="title" :count="updatesAvailabe" @click="update()" icon="settings" replace label="Updates" />
         <q-tab class="minimize" slot="title" @click="minimizeApp()" icon="minimize" replace label="Minimize" />
         <q-tab class="absolute-right" slot="title" @click="closeApp()" icon="power_settings_new" replace label="Poweroff" />
       </q-tabs>
@@ -32,12 +33,14 @@ export default {
           src: '',
           img: ''
         }
-      }
+      },
+      updatesAvailabe: '0'
     }
   },
   mounted () {
     this.videoSelected()
     this.initialize()
+    this.checkUpdates()
   },
   methods: {
     closeApp () {
@@ -59,6 +62,14 @@ export default {
       ipcRenderer.sendSync('createMusicFolder')
       ipcRenderer.sendSync('createDatabaseFolder')
       ipcRenderer.sendSync('createFileDatabase')
+    },
+    checkUpdates () {
+      ipcRenderer.on('updateReady', function (event, text) {
+        this.updatesAvailabe = '1'
+      })
+    },
+    update () {
+      ipcRenderer.send('quitAndInstall')
     }
   }
 }
@@ -69,7 +80,11 @@ export default {
 display: none;
 }
 .minimize {
-  margin-left: 22em;
+  margin-left: -2em;
+}
+
+.updates {
+  margin-left: 16em;
 }
 .background{
   background: #fff url(../statics/darkrola.jpeg);
