@@ -1,6 +1,6 @@
 {
   "name": "qtube",
-  "version": "0.1.1",
+  "version": "0.1.11",
   "description": "App to copy link and paste, download from youtube",
   "productName": "QTube",
   "cordovaId": "br.com.qtube.app",
