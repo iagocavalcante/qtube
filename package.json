@@ -5,7 +5,8 @@
   "productName": "QTube",
   "cordovaId": "br.com.qtube.app",
   "author": "Iago Cavalcante <iagoangelimc@gmail.com>",
-  "private": true,
+  "repository": "https://github.com/iagocavalcante/qtube",
+  "private": false,
   "scripts": {
     "lint": "eslint --ext .js,.vue src",
     "test": "echo \"No test specified\" && exit 0",
