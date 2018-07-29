@@ -155,7 +155,6 @@ module.exports = function (ctx) {
         appId: 'qtube',
         publish: {
           provider: 'github',
-          token: 'f9d20ff877242320642501f3ee074333c885ee3a'
         }
       }
     }
