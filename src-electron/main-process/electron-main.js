@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow, ipcMain, dialog } from 'electron'
 import server from './server/server.js'
 import { autoUpdater } from 'electron-updater'
 import fs from 'fs'
@@ -14,7 +14,9 @@ const defaultPath = `${app.getPath('downloads')}/Ytdown/`.replace(/\\/g, '/')
 
 let mainWindow
 
-const urlUpdate = 'https://api.github.com/repos/iagocavalcante/qtube/releases/latest'
+// const urlUpdate = 'https://api.github.com/repos/iagocavalcante/qtube/releases/latest'
+
+// autoUpdater.setFeedURL(urlUpdate)
 
 function createWindow () {
   /**
@@ -37,13 +39,34 @@ function createWindow () {
     mainWindow = null
   })
 
-  server.listen(defaultPath)
-
   autoUpdater.checkForUpdates()
+
+  server.listen(defaultPath)
 }
 
 // when the update has been downloaded and is ready to be installed, notify the BrowserWindow
-autoUpdater.on('update-downloaded', (info) => {
+autoUpdater.on('update-downloaded', (info, releaseNotes, releaseName) => {
+  console.log(info)
+  let message = `${app.getName()} ${releaseName}  is now available. It will be installed the next time you restart the application.`
+		if (releaseNotes) {
+			const splitNotes = releaseNotes.split(/[^\r]\n/)
+			message += '\n\nRelease notes:\n'
+			splitNotes.forEach(notes => {
+				message += `${notes} \n\n`
+			})
+		}
+		// Ask user to update the app
+		dialog.showMessageBox({
+			type: 'question',
+			buttons: ['Install and Relaunch', 'Later'],
+			defaultId: 0,
+			message: `A new version of ${app.getName()} has been downloaded`,
+			detail: message
+		}, response => {
+			if (response === 0) {
+				setTimeout(() => autoUpdater.quitAndInstall(), 1)
+			}
+		})
   mainWindow.webContents.send('updateReady')
 });
 

@@ -34,13 +34,15 @@ export default {
           img: ''
         }
       },
-      updatesAvailabe: '0'
+      updatesAvailabe: null
     }
   },
   mounted () {
     this.videoSelected()
     this.initialize()
-    this.checkUpdates()
+    setTimeout(() => {
+      this.checkUpdates()
+    }, 1000)
   },
   methods: {
     closeApp () {
@@ -80,11 +82,11 @@ export default {
 display: none;
 }
 .minimize {
-  margin-left: -2em;
+  margin-left: 0em;
 }
 
 .updates {
-  margin-left: 16em;
+  margin-left: 12em;
 }
 .background{
   background: #fff url(../statics/darkrola.jpeg);
