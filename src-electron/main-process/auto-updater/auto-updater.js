@@ -25,6 +25,7 @@ export const appUpdater = () => {
         message += `${notes} \n\n`
       })
     }
+    app.webContents.send('updateReady')
     // Ask user to update the app
     dialog.showMessageBox({
       type: 'question',
