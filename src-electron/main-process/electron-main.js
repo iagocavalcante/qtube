@@ -68,7 +68,7 @@ function createWindow () {
     utilUpdater.appUpdater()
   }
   if (handleSquirrel) return
-  autoUpdater.checkForUpdatesAndNotify();
+  autoUpdater.checkForUpdatesAndNotify()
 }
 
 // autoUpdater.on('update-downloaded', (info) => {
