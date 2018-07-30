@@ -3,9 +3,10 @@ import { app, autoUpdater, dialog } from 'electron'
 const version = app.getVersion()
 const platform = os.platform() + '_' + os.arch() // usually returns darwin_64
 
-const updaterFeedURL = 'https://api.github.com/repos/iagocavalcante/qtube/releases/latest'
+// const updaterFeedURL = 'https://api.github.com/repos/iagocavalcante/qtube/releases/latest'
 
 export const appUpdater = () => {
+  const updaterFeedURL = `https://qtube-release.herokuapp.com/update/${platform}/${version}`
   autoUpdater.setFeedURL(updaterFeedURL);
 	/* Log whats happening
 	TODO send autoUpdater events to renderer so that we could console log it in developer tools

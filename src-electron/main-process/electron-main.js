@@ -1,6 +1,6 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import server from './server/server.js'
-// import utilUpdater from './auto-updater/auto-updater.js'
+import utilUpdater from './auto-updater/auto-updater.js'
 import { autoUpdater } from 'electron-updater'
 import fs from 'fs'
 const log = require('electron-log')
@@ -13,9 +13,9 @@ if (process.env.PROD) {
 }
 
 // configure logging
-autoUpdater.logger = log
-autoUpdater.logger.transports.file.level = 'info'
-log.info('App starting...')
+// autoUpdater.logger = log
+// autoUpdater.logger.transports.file.level = 'info'
+// log.info('App starting...')
 
 if (require('electron-squirrel-startup')) app.quit()
 
@@ -62,12 +62,13 @@ function createWindow () {
 
   server.listen(defaultPath)
   autoUpdater.checkForUpdates()
-  // const checkOS = isWindowsOrmacOS()
-  // if ( checkOS ) {
-  //   // Initate auto-updates on macOs and windows
-  //   utilUpdater.appUpdater()
-  // }
+  const checkOS = isWindowsOrmacOS()
+  if ( checkOS ) {
+    // Initate auto-updates on macOs and windows
+    utilUpdater.appUpdater()
+  }
   if (handleSquirrel) return
+  autoUpdater.checkForUpdatesAndNotify();
 }
 
 // autoUpdater.on('update-downloaded', (info) => {
@@ -75,9 +76,9 @@ function createWindow () {
 // })
 
 // when receiving a quitAndInstall signal, quit and install the new version )
-// ipcMain.on('quitAndInstall', (event, arg) => {
-//   autoUpdater.quitAndInstall()
-// })
+ipcMain.on('quitAndInstall', (event, arg) => {
+  autoUpdater.quitAndInstall()
+})
 
 ipcMain.on('close-app', (event) => {
   if (process.platform !== 'darwin') {
