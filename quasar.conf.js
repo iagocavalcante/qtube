@@ -155,12 +155,13 @@ module.exports = function (ctx) {
         publish: {
           provider: 'github'
         },
-        squirrelWindows: {
-          remoteReleases: 'https://api.github.com/repos/iagocavalcante/qtube/releases/latest'
-        },
+        // squirrelWindows: {
+        //   remoteReleases: 'https://api.github.com/repos/iagocavalcante/qtube/releases/latest'
+        // },
         win: {
-          certificateFile: './certs/my_signing_key.pfx',
-          certificatePassword: ''
+          // certificateFile: './certs/my_signing_key.pfx',
+          // certificatePassword: '',
+          target: 'nsis'
         }
       }
     }

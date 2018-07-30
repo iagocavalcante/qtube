@@ -1,15 +1,21 @@
-import { app, BrowserWindow, ipcMain, autoUpdater } from 'electron'
+import { app, BrowserWindow, ipcMain } from 'electron'
 import server from './server/server.js'
-import utilUpdater from './auto-updater/auto-updater.js'
-// import { autoUpdater } from 'electron-updater'
+// import utilUpdater from './auto-updater/auto-updater.js'
+import { autoUpdater } from 'electron-updater'
 import fs from 'fs'
+const log = require('electron-log')
 /**
- * Set `__statics` path to static files in production;
+ * Set `__statics` path to static files in production
  * The reason we are setting it here is that the path needs to be evaluated at runtime
  */
 if (process.env.PROD) {
   global.__statics = require('path').join(__dirname, 'statics').replace(/\\/g, '\\\\')
 }
+
+// configure logging
+autoUpdater.logger = log
+autoUpdater.logger.transports.file.level = 'info'
+log.info('App starting...')
 
 if (require('electron-squirrel-startup')) app.quit()
 
@@ -28,7 +34,7 @@ const handleSquirrel = () => {
 const defaultPath = `${app.getPath('downloads')}/Ytdown/`.replace(/\\/g, '/')
 
 const isWindowsOrmacOS = () => {
-  return process.platform === 'darwin' || process.platform === 'win32';
+  return process.platform === 'darwin' || process.platform === 'win32'
 }
 
 let mainWindow
@@ -55,19 +61,23 @@ function createWindow () {
   })
 
   server.listen(defaultPath)
-
-  const checkOS = isWindowsOrmacOS()
-  if ( checkOS ) {
-    // Initate auto-updates on macOs and windows
-    utilUpdater.appUpdater()
-  }
+  autoUpdater.checkForUpdates()
+  // const checkOS = isWindowsOrmacOS()
+  // if ( checkOS ) {
+  //   // Initate auto-updates on macOs and windows
+  //   utilUpdater.appUpdater()
+  // }
   if (handleSquirrel) return
 }
 
-// when receiving a quitAndInstall signal, quit and install the new version ;)
-ipcMain.on('quitAndInstall', (event, arg) => {
-  autoUpdater.quitAndInstall();
-})
+// autoUpdater.on('update-downloaded', (info) => {
+//   mainWindow.webContents.send('updateReady')
+// })
+
+// when receiving a quitAndInstall signal, quit and install the new version )
+// ipcMain.on('quitAndInstall', (event, arg) => {
+//   autoUpdater.quitAndInstall()
+// })
 
 ipcMain.on('close-app', (event) => {
   if (process.platform !== 'darwin') {
@@ -150,4 +160,39 @@ app.on('activate', () => {
   if (mainWindow === null) {
     createWindow()
   }
+})
+
+const sendStatusToWindow = (text) => {
+  log.info(text)
+  if (mainWindow) {
+    mainWindow.webContents.send('updateReady', text)
+  }
+}
+
+autoUpdater.on('checking-for-update', () => {
+  sendStatusToWindow('Checking for update...')
+})
+autoUpdater.on('update-available', info => {
+  sendStatusToWindow('Update available.')
+})
+autoUpdater.on('update-not-available', info => {
+  sendStatusToWindow('Update not available.')
+})
+autoUpdater.on('error', err => {
+  sendStatusToWindow(`Error in auto-updater: ${err.toString()}`)
+})
+autoUpdater.on('download-progress', progressObj => {
+  sendStatusToWindow(
+    `Download speed: ${progressObj.bytesPerSecond} - Downloaded ${progressObj.percent}% (${progressObj.transferred} + '/' + ${progressObj.total} + )`
+  )
+})
+autoUpdater.on('update-downloaded', info => {
+  sendStatusToWindow('Update downloaded will install now')
+})
+
+autoUpdater.on('update-downloaded', info => {
+  // Wait 5 seconds, then quit and install
+  // In your application, you don't need to wait 500 ms.
+  // You could call autoUpdater.quitAndInstall() immediately
+  autoUpdater.quitAndInstall()
 })

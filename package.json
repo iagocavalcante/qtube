@@ -9,12 +9,14 @@
   "private": false,
   "scripts": {
     "lint": "eslint --ext .js,.vue src",
-    "test": "echo \"No test specified\" && exit 0"
+    "test": "echo \"No test specified\" && exit 0",
+    "publish": "node_modules/.bin/build --win -p always"
   },
   "dependencies": {
     "axios": "^0.18.0",
     "body-parser": "^1.18.3",
     "cors": "^2.8.4",
+    "electron-log": "^2.2.16",
     "electron-squirrel-startup": "^1.0.0",
     "electron-store": "^2.0.0",
     "electron-updater": "^3.0.3",
