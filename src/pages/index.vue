@@ -56,10 +56,6 @@ export default {
         {
           type: 'mp4',
           download: () => this.donwloadVideo()
-        },
-        {
-          type: 'playlist',
-          download: () => this.donwloadPlaylist()
         }
       ],
       selectedType: {
@@ -91,20 +87,6 @@ export default {
       this.$refs.bar.start()
 
       this.$axios.post('http://localhost:3000/api/download', { youtubeUrl: this.youtubeUrl })
-        .then(data => {
-          this.statusDefault()
-          console.log(data)
-        })
-        .catch(err => {
-          this.statusDefault()
-          console.log(err)
-        })
-    },
-    donwloadPlaylist () {
-      this.isDisable = true
-      this.$refs.bar.start()
-
-      this.$axios.post('http://localhost:3000/api/download-playlist', { youtubeUrl: this.youtubeUrl })
         .then(data => {
           this.statusDefault()
           console.log(data)
