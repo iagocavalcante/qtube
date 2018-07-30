@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow, ipcMain, autoUpdater } from 'electron'
 import server from './server/server.js'
 import utilUpdater from './auto-updater/auto-updater.js'
 // import { autoUpdater } from 'electron-updater'
@@ -61,11 +61,11 @@ function createWindow () {
     // Initate auto-updates on macOs and windows
     utilUpdater.appUpdater()
   }
-  if (handleSquirrel) return 
+  if (handleSquirrel) return
 }
 
 // when receiving a quitAndInstall signal, quit and install the new version ;)
-ipcMain.on("quitAndInstall", (event, arg) => {
+ipcMain.on('quitAndInstall', (event, arg) => {
   autoUpdater.quitAndInstall();
 })
 
