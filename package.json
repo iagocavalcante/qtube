@@ -15,6 +15,7 @@
     "axios": "^0.18.0",
     "body-parser": "^1.18.3",
     "cors": "^2.8.4",
+    "electron-squirrel-startup": "^1.0.0",
     "electron-store": "^2.0.0",
     "electron-updater": "^3.0.3",
     "express": "^4.16.3",

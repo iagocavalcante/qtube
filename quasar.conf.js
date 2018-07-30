@@ -151,10 +151,16 @@ module.exports = function (ctx) {
       },
       builder: {
         // https://www.electron.build/configuration/configuration
-
         appId: 'qtube',
         publish: {
-          provider: 'github',
+          provider: 'github'
+        },
+        squirrelWindows: {
+          remoteReleases: 'https://api.github.com/repos/iagocavalcante/qtube/releases/latest'
+        },
+        win: {
+          certificateFile: './certs/my_signing_key.pfx',
+          certificatePassword: ''
         }
       }
     }
