@@ -1,0 +1,51 @@
+@import url('https://fonts.googleapis.com/css?family=K2D');
+@import url('https://fonts.googleapis.com/css?family=Roboto+Mono');
+body {
+    background-image: linear-gradient(to bottom, #8300a3, #540068);
+    background-repeat: no-repeat;
+}
+.container {
+    color: aliceblue;
+    font-family: 'Roboto Mono', monospace;
+}
+.titulos{
+    font-family: 'K2D', sans-serif;
+}
+
+section {
+    text-align: center;
+}
+
+.card {
+    color: black;
+    margin: 0 auto;
+}
+
+.fa-file-download {
+    font-size: 2rem;
+}
+
+.init ul{
+    list-style: none;
+}
+
+footer .container {
+    text-align: left;
+}
+
+.fa-heart {
+    color: red;
+}
+
+.rodape {
+    list-style: none;
+}
+
+.rodape a {
+    color: #f0f8ff;
+    transition: .5s;
+}
+
+.rodape a:hover {
+    color: #afa5b1;
+}
