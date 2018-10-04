@@ -1,12 +1,15 @@
 @import url('https://fonts.googleapis.com/css?family=K2D');
 @import url('https://fonts.googleapis.com/css?family=Roboto+Mono');
 body {
-    background-image: linear-gradient(to bottom, #8300a3, #540068);
+    background-image: linear-gradient(to bottom, #ba00e9, #540068);
     background-repeat: no-repeat;
 }
 .container {
     color: aliceblue;
     font-family: 'Roboto Mono', monospace;
+}
+.img-fluid{
+    width:40%;
 }
 .titulos{
     font-family: 'K2D', sans-serif;
