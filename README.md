@@ -1,3 +1,3 @@
-# Quasar App
+# Information
 
-> WIP
+[Docs](https://iagocavalcante.github.io/qtube/)
