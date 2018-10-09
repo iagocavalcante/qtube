@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css?family=K2D');
 @import url('https://fonts.googleapis.com/css?family=Roboto+Mono');
-body {
-    background-image: linear-gradient(to bottom, #ba00e9, #540068);
+.main-content {
+    background-image: linear-gradient(to bottom, #e26c44, #dd001c);
     background-repeat: no-repeat;
 }
 .container {
