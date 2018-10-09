@@ -37,6 +37,7 @@ section {
 .card {
     color: black;
     margin: 0 auto;
+    border-radius: 10px;
 }
 
 .fa-file-download {
