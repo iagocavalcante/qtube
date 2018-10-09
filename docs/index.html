@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,7 +7,6 @@
   <meta name="description" content="Site to promote the project">
   <meta name="keywords" content="Qtube,Quasar App,Electron,JavaScript">
   <meta name="author" content="Marcos Sarges">
-  <link rel="stylesheet" href="src/css/index.css">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU"
     crossorigin="anonymous">
   <!-- <link rel="stylesheet" href="src/css/bootstrap.min.css">
@@ -16,17 +14,21 @@
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
     crossorigin="anonymous">
   <!-- <script src="src/js/bootstrap.min.js"></script> -->
+  <link rel="stylesheet" href="src/css/index.css">
   <title>QTube</title>
 </head>
 
 <body>
-  <main class="container mt-2">
-    <picture class="picture">
-      <img src="src/img/logo-qtube.svg" class="rounded mx-auto d-block img-fluid" alt="QTube" >
+  <header class="header">
+    <picture class="logo">
+      <img src="src/img/logo-qtube.svg" alt="QTube" >
     </picture>
+  </header>
+  <main class="main-content">
+    <div class="container">
     <div class="titulos">
       <!-- <h1 class="h1 text-center">QTube</h1> -->
-      <h6 class="h6 text-center mt-2">Application built with Quasar and Electron</h6>
+      <h6 class="h4">Application built with Quasar and Electron</h6>
     </div>
     <section class="releases mt-3">
       <div class="card">
@@ -66,15 +68,16 @@
         </div>
       </div>
     </section>
+    </div>
   </main>
-  <footer class="container mt-2">
-    <ul class="rodape">
-      <li>Licença:</li>
-      <li>Project developed by <a href="https://github.com/iagocavalcante" target="blank">Iago Angelim Cavalcante</a></li>
-      <li>Contributors <a href="https://github.com/iagocavalcante/qtube/graphs/contributors" target="blank"><i class="fas fa-users"></i></a></li>
-      <li>Website developed with <i class="fas fa-heart"></i> by <a href="https://github.com/MarcosSarges">Marcos
-          Sarges</a></li>
-    </ul>
+  <footer class="footer">
+    <div class="container">
+      <ul class="rodape">
+        <li><strong>Licença:</strong></li>
+        <li>Project developed by <a href="https://github.com/iagocavalcante" target="blank">Iago Angelim Cavalcante</a></li>
+        <li>Website developed with <3 by <a href="https://github.com/iagocavalcante/qtube/graphs/contributors" target="blank">Contributors</a></li>
+      </ul>
+    </div>
   </footer>
 </body>
 

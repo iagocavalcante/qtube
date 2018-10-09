@@ -1,8 +1,9 @@
 @import url('https://fonts.googleapis.com/css?family=K2D');
 @import url('https://fonts.googleapis.com/css?family=Roboto+Mono');
-body {
-    background-image: linear-gradient(to bottom, #ba00e9, #540068);
+.main-content {
+    background-image: linear-gradient(to bottom, #D98656, #CC2E2F);
     background-repeat: no-repeat;
+    padding: 120px 0;
 }
 .container {
     color: aliceblue;
@@ -11,8 +12,22 @@ body {
 .img-fluid{
     width:40%;
 }
+
+.header {
+  background-color: #fff;
+  padding: 40px;
+  text-align: center;
+}
+
+.header .logo img {
+  max-width: 333px;
+}
+
 .titulos{
     font-family: 'K2D', sans-serif;
+    text-align: center;
+    margin-bottom: 10px;
+    display: block;
 }
 
 section {
@@ -22,6 +37,7 @@ section {
 .card {
     color: black;
     margin: 0 auto;
+    border-radius: 10px;
 }
 
 .fa-file-download {
@@ -40,8 +56,15 @@ footer .container {
     color: red;
 }
 
+.footer {
+    background-color: #8e0a0a;
+}
+
 .rodape {
     list-style: none;
+    margin-bottom: 0;
+    text-align: center;
+    padding: 20px 0;
 }
 
 .rodape a {
