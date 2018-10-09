@@ -25,6 +25,9 @@
 
 .titulos{
     font-family: 'K2D', sans-serif;
+    text-align: center;
+    margin-bottom: 10px;
+    display: block;
 }
 
 section {
