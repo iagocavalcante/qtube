@@ -11,6 +11,16 @@ body {
 .img-fluid{
     width:40%;
 }
+
+.header {
+  background-color: #fff;
+  padding: 40px;
+}
+
+.header .logo img {
+  max-width: 333px;
+}
+
 .titulos{
     font-family: 'K2D', sans-serif;
 }
