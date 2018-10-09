@@ -56,6 +56,10 @@ footer .container {
     color: red;
 }
 
+.footer {
+    background-color: #8e0a0a;
+}
+
 .rodape {
     list-style: none;
 }
