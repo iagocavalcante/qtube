@@ -12,8 +12,9 @@ $ npm run build
 ## Contributing
 
 Any type of contribution is welcome, here are some examples of how you may contribute to this project:
-Before starting the contribution, make a Fork in the project.
-- Fork [qtube](https://github.com/iagocavalcante/qtube) to improve the code
 
-## Reference 
-[Docs](https://iagocavalcante.github.io/qtube/)
+Before starting the contribution, read our [contributing guide](https://github.com/iagocavalcante/qtube/blob/master/CONTRIBUTING.md) and let's build a better antd together. 
+
+## Reference
+
+[For your reference](https://iagocavalcante.github.io/qtube/)
