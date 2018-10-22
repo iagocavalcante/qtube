@@ -1,6 +1,6 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import server from './server/server.js'
-import utilUpdater from './auto-updater/auto-updater.js'
+// import utilUpdater from './auto-updater/auto-updater.js'
 import { autoUpdater } from 'electron-updater'
 import fs from 'fs'
 const log = require('electron-log')
@@ -13,29 +13,11 @@ if (process.env.PROD) {
 }
 
 // configure logging
-// autoUpdater.logger = log
-// autoUpdater.logger.transports.file.level = 'info'
-// log.info('App starting...')
-
-if (require('electron-squirrel-startup')) app.quit()
-
-const squirrelCommand = process.argv[1]
-
-const handleSquirrel = () => {
-  switch (squirrelCommand) {
-    case '--squirrel-install':
-    case '--squirrel-updated':
-    case '--squirrel-obsolete':
-      app.quit()
-      return true
-  }
-}
+autoUpdater.logger = log
+autoUpdater.logger.transports.file.level = 'info'
+log.info('App starting...')
 
 const defaultPath = `${app.getPath('downloads')}/Ytdown/`.replace(/\\/g, '/')
-
-const isWindowsOrmacOS = () => {
-  return process.platform === 'darwin' || process.platform === 'win32'
-}
 
 let mainWindow
 
@@ -61,14 +43,6 @@ function createWindow () {
   })
 
   server.listen(defaultPath)
-  autoUpdater.checkForUpdates()
-  const checkOS = isWindowsOrmacOS()
-  if ( checkOS ) {
-    // Initate auto-updates on macOs and windows
-    utilUpdater.appUpdater()
-  }
-  if (handleSquirrel) return
-  autoUpdater.checkForUpdatesAndNotify()
 }
 
 // when receiving a quitAndInstall signal, quit and install the new version )
@@ -145,7 +119,10 @@ ipcMain.on('getFolderApp', (event) => {
   event.returnValue = defaultPath
 })
 
-app.on('ready', createWindow)
+app.on('ready', () => {
+  autoUpdater.checkForUpdatesAndNotify()
+  createWindow
+})
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
@@ -159,37 +136,46 @@ app.on('activate', () => {
   }
 })
 
-// const sendStatusToWindow = (text) => {
-//   log.info(text)
-//   if (mainWindow) {
-//     mainWindow.webContents.send('updateReady', text)
-//   }
-// }
+function sendStatusToWindow(text) {
+  const dialogOpts = {
+      type: 'info',
+      buttons: ['Ok'],
+      title: 'Atualização do aplicativo',
+      message: 'Detalhes:',
+      detail: text
+  }
 
-// autoUpdater.on('checking-for-update', () => {
-//   sendStatusToWindow('Checking for update...')
-// })
-// autoUpdater.on('update-available', info => {
-//   sendStatusToWindow('Update available.')
-// })
-// autoUpdater.on('update-not-available', info => {
-//   sendStatusToWindow('Update not available.')
-// })
-// autoUpdater.on('error', err => {
-//   sendStatusToWindow(`Error in auto-updater: ${err.toString()}`)
-// })
-// autoUpdater.on('download-progress', progressObj => {
-//   sendStatusToWindow(
-//     `Download speed: ${progressObj.bytesPerSecond} - Downloaded ${progressObj.percent}% (${progressObj.transferred} + '/' + ${progressObj.total} + )`
-//   )
-// })
-// autoUpdater.on('update-downloaded', info => {
-//   sendStatusToWindow('Update downloaded will install now')
-// })
+  dialog.showMessageBox(dialogOpts)
+}
 
-// autoUpdater.on('update-downloaded', info => {
-//   // Wait 5 seconds, then quit and install
-//   // In your application, you don't need to wait 500 ms.
-//   // You could call autoUpdater.quitAndInstall() immediately
-//   autoUpdater.quitAndInstall()
-// })
+autoUpdater.on('checking-for-update', () => {
+  sendStatusToWindow('Checking for update...');
+})
+
+autoUpdater.on('update-available', (info) => {
+  sendStatusToWindow('Update available.');
+})
+
+autoUpdater.on('update-not-available', (info) => {
+  sendStatusToWindow('Update not available.');
+})
+
+autoUpdater.on('error', (err) => {
+  sendStatusToWindow('Error in auto-updater. ' + err);
+})
+
+autoUpdater.on('download-progress', (progressObj) => {
+  let log_message = "Download speed: " + progressObj.bytesPerSecond;
+  log_message = log_message + ' - Downloaded ' + progressObj.percent + '%';
+  log_message = log_message + ' (' + progressObj.transferred + "/" + progressObj.total + ')';
+  sendStatusToWindow(log_message);
+})
+
+autoUpdater.on('update-downloaded', (info) => {
+  sendStatusToWindow('Update downloaded');
+});
+
+app.on('ready', function () {
+  autoUpdater.checkForUpdatesAndNotify();
+  createWindow();
+});

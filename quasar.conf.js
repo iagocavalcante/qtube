@@ -153,7 +153,9 @@ module.exports = function (ctx) {
         // https://www.electron.build/configuration/configuration
         appId: 'qtube',
         publish: {
-          provider: 'github'
+          provider: 'github',
+          owner: 'iagocavalcante',
+          repo: 'qtube'
         },
         // squirrelWindows: {
         //   remoteReleases: 'https://api.github.com/repos/iagocavalcante/qtube/releases/latest'
