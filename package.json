@@ -29,7 +29,7 @@
     "ytdl-core": "0.20.4"
   },
   "devDependencies": {
-    "babel-eslint": "8.2.6",
+    "babel-eslint": "10.0.2",
     "devtron": "1.4.0",
     "electron": "6.0.0",
     "electron-builder": "21.1.5",
