@@ -23,7 +23,7 @@
     "express": "4.17.1",
     "fluent-ffmpeg": "2.1.2",
     "request": "2.87.0",
-    "video.js": "7.0.5",
+    "video.js": "7.6.0",
     "vue-i18n": "7.8.1",
     "vue-video-player": "5.0.2",
     "ytdl-core": "0.20.4"
