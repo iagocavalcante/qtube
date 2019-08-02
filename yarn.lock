@@ -6233,12 +6233,13 @@ m3u8-parser@4.3.0:
   dependencies:
     global "^4.3.2"
 
-m3u8stream@^0.2.1:
-  version "0.2.2"
-  resolved "https://registry.yarnpkg.com/m3u8stream/-/m3u8stream-0.2.2.tgz#02ef837253595f2557efab86c4234018e8a60da2"
-  integrity sha512-R/xWLXBtVr0m9sPruRL4p9uO01JyHxhcQ4nhqQhVgyT802OZyVW+dn+fWHvTnbfE6YMLc65TksZZut+Mh2OVMQ==
+m3u8stream@^0.6.2:
+  version "0.6.2"
+  resolved "https://registry.yarnpkg.com/m3u8stream/-/m3u8stream-0.6.2.tgz#c2c62ddce88156d80378dd59be010c8b8e9d120b"
+  integrity sha512-WsuM2bd5pPN80xvfrB+1DZqr4M7+kJl8byi6+ZCy6cmVjEiHhmr/desN53Ngsa6Hs13kYumeVgT4wL0oIJ+v6g==
   dependencies:
-    miniget "^1.1.0"
+    miniget "^1.4.0"
+    sax "^1.2.4"
 
 make-dir@^1.0.0:
   version "1.3.0"
@@ -6459,10 +6460,10 @@ mini-css-extract-plugin@0.4.4:
     schema-utils "^1.0.0"
     webpack-sources "^1.1.0"
 
-miniget@^1.1.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/miniget/-/miniget-1.2.0.tgz#0036373a26bbd52dbe6945fce6c8c0391e9e1241"
-  integrity sha1-ADY3Oia71S2+aUX85sjAOR6eEkE=
+miniget@^1.4.0, miniget@^1.5.3:
+  version "1.5.3"
+  resolved "https://registry.yarnpkg.com/miniget/-/miniget-1.5.3.tgz#d796c7291970d1dfa28b646d9aba3fa6b377c5e8"
+  integrity sha512-6xiJs3ZGBdrNMlPNlEWirHhY53hSW33nG1Ytub9Cg5+jLhFPn9PGe4FmPZK9WlmDE1N7/8DEL7PGr7r9kbxwgw==
 
 minimalistic-assert@^1.0.0, minimalistic-assert@^1.0.1:
   version "1.0.1"
@@ -10790,12 +10791,12 @@ yauzl@2.4.1:
   dependencies:
     fd-slicer "~1.0.1"
 
-ytdl-core@0.20.4:
-  version "0.20.4"
-  resolved "https://registry.yarnpkg.com/ytdl-core/-/ytdl-core-0.20.4.tgz#91108882e1fe526e14c1e99a589b4971180ba42a"
-  integrity sha512-d+jthiJxSQ6yqCeCwwMggXYOjFSOJsD7ahvAAE1sFW9nVNnsA/roz91SFH1FzaMGS7/y7AnJfhVgpE9i8uYjJQ==
+ytdl-core@0.29.5:
+  version "0.29.5"
+  resolved "https://registry.yarnpkg.com/ytdl-core/-/ytdl-core-0.29.5.tgz#278052a1a5a1a75c5931c229b804c0798f18858c"
+  integrity sha512-6WOoLQCeovo/aFYeMKeEXjvS/L+0j/vq85AYF86KSmkSA3lMzUzMdtmlo0GjsrOUN79S03MDkSgXEWOZBWL1Rg==
   dependencies:
     html-entities "^1.1.3"
-    m3u8stream "^0.2.1"
-    miniget "^1.1.0"
+    m3u8stream "^0.6.2"
+    miniget "^1.5.3"
     sax "^1.1.3"
