@@ -18,7 +18,7 @@
     "cors": "2.8.5",
     "electron-log": "3.0.7",
     "electron-squirrel-startup": "1.0.0",
-    "electron-store": "2.0.0",
+    "electron-store": "4.0.0",
     "electron-updater": "3.2.3",
     "express": "4.17.1",
     "fluent-ffmpeg": "2.1.2",
