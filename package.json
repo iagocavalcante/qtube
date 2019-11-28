@@ -26,7 +26,7 @@
     "video.js": "7.6.6",
     "vue-i18n": "8.15.1",
     "vue-video-player": "5.0.2",
-    "ytdl-core": "1.0.2"
+    "ytdl-core": "1.0.3"
   },
   "devDependencies": {
     "babel-eslint": "10.0.3",
