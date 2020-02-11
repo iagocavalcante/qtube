@@ -22,7 +22,7 @@
     "electron-updater": "4.2.0",
     "express": "4.17.1",
     "fluent-ffmpeg": "2.1.2",
-    "request": "2.88.0",
+    "request": "2.88.2",
     "video.js": "7.6.6",
     "vue-i18n": "8.15.3",
     "vue-video-player": "5.0.2",
