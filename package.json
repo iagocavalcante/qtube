@@ -20,7 +20,7 @@
     "electron-squirrel-startup": "1.0.0",
     "electron-store": "6.0.0",
     "electron-updater": "4.2.2",
-    "express": "4.17.1",
+    "express": "4.20.0",
     "fluent-ffmpeg": "2.1.2",
     "request": "2.88.2",
     "video.js": "7.6.6",
