@@ -1,18 +1,18 @@
 <template>
   <q-layout view="lHh Lpr lFf">
-    <q-layout-header>
+    <q-header>
       <q-tabs
         color="purple"
       >
-        <q-route-tab slot="title" to="/index" icon="get_app" replace label="Download" />
-        <q-route-tab slot="title" to="/videos" icon="perm_media" replace label="Videos" />
-        <q-route-tab slot="title" to="/musics" icon="queue_music" replace label="Musics" />
-        <q-route-tab slot="title" :to="path" icon="theaters" replace label="Player" />
-        <q-tab class="updates" slot="title" :count="updatesAvailabe" @click="update()" icon="settings" replace label="Updates" />
-        <q-tab class="minimize" slot="title" @click="minimizeApp()" icon="minimize" replace label="Minimize" />
-        <q-tab class="absolute-right" slot="title" @click="closeApp()" icon="power_settings_new" replace label="Poweroff" />
+        <q-route-tab to="/index" icon="get_app" replace label="Download" />
+        <q-route-tab to="/videos" icon="perm_media" replace label="Videos" />
+        <q-route-tab to="/musics" icon="queue_music" replace label="Musics" />
+        <q-route-tab :to="path" icon="theaters" replace label="Player" />
+        <q-tab class="updates" :count="updatesAvailabe" @click="update()" icon="settings" replace label="Updates" />
+        <q-tab class="minimize" @click="minimizeApp()" icon="minimize" replace label="Minimize" />
+        <q-tab class="absolute-right" @click="closeApp()" icon="power_settings_new" replace label="Poweroff" />
       </q-tabs>
-    </q-layout-header>
+    </q-header>
 
     <q-page-container class="background">
       <router-view />
@@ -21,8 +21,6 @@
 </template>
 
 <script>
-import { ipcRenderer } from 'electron'
-
 export default {
   name: 'LayoutDefault',
   data () {
@@ -44,34 +42,50 @@ export default {
       this.checkUpdates()
     }, 1000)
   },
+  unmounted () {
+    // Clean up event listeners
+    if (window.electronAPI) {
+      window.electronAPI.removeUpdateListener()
+    }
+  },
   methods: {
     closeApp () {
-      ipcRenderer.send('close-app')
+      if (window.electronAPI) {
+        window.electronAPI.closeApp()
+      }
     },
     minimizeApp () {
-      ipcRenderer.send('minimize')
+      if (window.electronAPI) {
+        window.electronAPI.minimize()
+      }
     },
     videoSelected () {
-      const selected = JSON.parse(window.localStorage.getItem('media'))
-      if (selected) {
+      const selected = JSON.parse(window.localStorage.getItem('media') || '{}')
+      if (selected && selected.src) {
         this.path.params.src = selected.src
         this.path.params.img = selected.thumbnail
       }
     },
-    initialize () {
-      ipcRenderer.sendSync('createYtDownFolder')
-      ipcRenderer.sendSync('createVideosFolder')
-      ipcRenderer.sendSync('createMusicFolder')
-      ipcRenderer.sendSync('createDatabaseFolder')
-      ipcRenderer.sendSync('createFileDatabase')
+    async initialize () {
+      if (window.electronAPI) {
+        await window.electronAPI.createYtDownFolder()
+        await window.electronAPI.createVideosFolder()
+        await window.electronAPI.createMusicFolder()
+        await window.electronAPI.createDatabaseFolder()
+        await window.electronAPI.createFileDatabase()
+      }
     },
     checkUpdates () {
-      ipcRenderer.on('updateReady', function (event, text) {
-        this.updatesAvailabe = '1'
-      })
+      if (window.electronAPI) {
+        window.electronAPI.onUpdateReady(() => {
+          this.updatesAvailabe = '1'
+        })
+      }
     },
     update () {
-      ipcRenderer.send('quitAndInstall')
+      if (window.electronAPI) {
+        window.electronAPI.quitAndInstall()
+      }
     }
   }
 }

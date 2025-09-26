@@ -1,18 +1,20 @@
 
-export default [
+const routes = [
   {
     path: '/',
     redirect: '/index',
-    component: () => import('layouts/default'),
+    component: () => import('layouts/default.vue'),
     children: [
-      { path: 'index', component: () => import('pages/index') },
-      { path: 'videos', component: () => import('pages/videos') },
-      { path: 'musics', component: () => import('pages/musics') },
-      { path: 'player/:src/:img', name: 'player', component: () => import('pages/player') }
+      { path: 'index', component: () => import('pages/index.vue') },
+      { path: 'videos', component: () => import('pages/videos.vue') },
+      { path: 'musics', component: () => import('pages/musics.vue') },
+      { path: 'player/:src/:img', name: 'player', component: () => import('pages/player.vue') }
     ]
   },
   { // Always leave this as last one
-    path: '*',
-    component: () => import('pages/404')
+    path: '/:catchAll(.*)*',
+    component: () => import('pages/404.vue')
   }
 ]
+
+export default routes

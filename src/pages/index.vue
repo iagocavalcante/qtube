@@ -1,34 +1,53 @@
 <template>
   <q-page class="flex flex-center row">
     <q-field
-      icon="ondemand_video"
-      icon-color="purple"
       class="col-8"
     >
-      <q-input inverted v-model="youtubeUrl" color="purple" stack-label="Video URL" required/>
+      <q-input 
+        v-model="youtubeUrl" 
+        color="purple" 
+        label="Video URL" 
+        required
+        outlined
+      >
+        <template v-slot:prepend>
+          <q-icon name="ondemand_video" color="purple" />
+        </template>
+      </q-input>
     </q-field>
-    <q-ajax-bar ref="bar" :position="'bottom'" color="purple" :size="'18px'"/>
+    <q-ajax-bar ref="bar" position="bottom" color="purple" size="18px"/>
     <div class="flex flex-center q-pa-sm">
       <q-btn
         class="col-5"
         color="purple"
         size="lg"
         label="Download"
-        :loading="isDisable"
+        :loading="isDownloading"
+        :disable="!youtubeUrl || isDownloading"
         @click="download()"
       >
-        <span slot="loading">
+        <template v-slot:loading>
           <q-spinner-hourglass class="on-left" />
-        </span>
+          Downloading...
+        </template>
       </q-btn>
     </div>
-    <q-btn-dropdown  icon="build" class="on-right round" color="purple">
-      <q-list link>
-        <q-item :key="index" v-for="(option, index) of options" @click.native="chooseType(option)">
-          <q-item-side icon="settings" inverted color="purple" />
-          <q-item-main>
-            <q-item-tile :class="selectedType.type === option.type ? 'bold' : ''" label>{{option.type}}</q-item-tile>
-          </q-item-main>
+    <q-btn-dropdown icon="build" class="on-right round" color="purple">
+      <q-list>
+        <q-item 
+          v-for="(option, index) of options" 
+          :key="index" 
+          clickable 
+          @click="chooseType(option)"
+        >
+          <q-item-section avatar>
+            <q-icon name="settings" color="purple" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label :class="selectedType.type === option.type ? 'text-weight-bold' : ''">
+              {{ option.type }}
+            </q-item-label>
+          </q-item-section>
         </q-item>
       </q-list>
     </q-btn-dropdown>
@@ -43,65 +62,84 @@
 
 <script>
 export default {
-  name: 'PageIndex',
+  name: 'IndexPage',
   data () {
     return {
       youtubeUrl: '',
-      isDisable: false,
+      isDownloading: false, // Fixed: renamed from isDisable and explicitly set to false
       options: [
         {
           type: 'mp3',
-          download: () => this.donwloadMp3()
+          download: () => this.downloadMp3()
         },
         {
-          type: 'mp4',
-          download: () => this.donwloadVideo()
+          type: 'mp4', 
+          download: () => this.downloadVideo()
         }
       ],
       selectedType: {
         type: 'mp3',
-        download: () => this.donwloadMp3()
+        download: () => this.downloadMp3()
       }
     }
   },
   methods: {
     download () {
+      if (!this.youtubeUrl || this.isDownloading) {
+        return
+      }
       this.selectedType.download()
     },
-    donwloadMp3 () {
-      this.isDisable = true
+    downloadMp3 () {
+      this.isDownloading = true
       this.$refs.bar.start()
 
       this.$axios.post('http://localhost:3000/api/download-mp3', { youtubeUrl: this.youtubeUrl })
         .then(data => {
-          this.statusDefault()
-          console.log(data)
+          this.resetToDefault()
+          console.log('MP3 download completed:', data)
+          this.$q.notify({
+            type: 'positive',
+            message: 'MP3 download completed successfully!'
+          })
         })
         .catch(err => {
-          this.statusDefault()
-          console.log(err)
+          this.resetToDefault()
+          console.error('MP3 download failed:', err)
+          this.$q.notify({
+            type: 'negative', 
+            message: 'Download failed. Please check the URL and try again.'
+          })
         })
     },
-    donwloadVideo () {
-      this.isDisable = true
+    downloadVideo () {
+      this.isDownloading = true
       this.$refs.bar.start()
 
       this.$axios.post('http://localhost:3000/api/download', { youtubeUrl: this.youtubeUrl })
         .then(data => {
-          this.statusDefault()
-          console.log(data)
+          this.resetToDefault()
+          console.log('Video download completed:', data)
+          this.$q.notify({
+            type: 'positive',
+            message: 'Video download completed successfully!'
+          })
         })
         .catch(err => {
-          this.statusDefault()
-          console.log(err)
+          this.resetToDefault()
+          console.error('Video download failed:', err)
+          this.$q.notify({
+            type: 'negative',
+            message: 'Download failed. Please check the URL and try again.'
+          })
         })
     },
     chooseType (option) {
       this.selectedType.type = option.type
       this.selectedType.download = option.download
     },
-    statusDefault () {
-      this.isDisable = false
+    resetToDefault () {
+      this.isDownloading = false // Fixed: renamed from isDisable
       this.youtubeUrl = ''
       this.$refs.bar.stop()
     }

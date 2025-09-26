@@ -6,11 +6,10 @@
 </template>
 
 <script>
-import videoPlayer from './../components/videoPlayer'
-import { ipcRenderer } from 'electron'
+import videoPlayer from '../components/videoPlayer.vue'
 
 export default {
-  name: 'Player',
+  name: 'VideoPlayer',
   components: {
     videoPlayer
   },
@@ -18,14 +17,20 @@ export default {
     return {
       src: '',
       img: '',
-      videosFolder: ipcRenderer.sendSync('getFolderApp')
+      videosFolder: ''
     }
   },
-  mounted () {
-    console.log(ipcRenderer.sendSync('getFolderApp'))
-    this.src = `${this.videosFolder}/${this.$route.params.src}`
-    this.img = `${this.videosFolder}/${this.$route.params.img}`
-    console.log(this.src)
+  async mounted () {
+    // Get videos folder through secure IPC API
+    if (window.electronAPI) {
+      this.videosFolder = await window.electronAPI.getFolderApp?.() || ''
+    }
+    
+    this.src = this.$route.params.src ? `${this.videosFolder}/${this.$route.params.src}` : this.$route.params.src
+    this.img = this.$route.params.img ? `${this.videosFolder}/${this.$route.params.img}` : this.$route.params.img
+    
+    console.log('Video source:', this.src)
+    console.log('Video poster:', this.img)
   }
 }
 </script>

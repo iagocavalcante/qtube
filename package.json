@@ -3,59 +3,47 @@
   "version": "0.1.159",
   "description": "App to copy link and paste, download from youtube",
   "productName": "QTube",
-  "cordovaId": "br.com.qtube.app",
   "author": "Iago Cavalcante <iagoangelimc@gmail.com>",
   "repository": "https://github.com/iagocavalcante/qtube",
   "private": false,
+  "type": "module",
   "scripts": {
-    "lint": "eslint --ext .js,.vue src",
+    "lint": "eslint --ext .js,.vue,.ts src",
+    "format": "prettier --write \"**/*.{js,vue,ts}\"",
     "test": "echo \"No test specified\" && exit 0",
-    "publish": "node_modules/.bin/build --win -p always"
+    "dev": "quasar dev -m electron",
+    "build": "quasar build -m electron",
+    "publish": "quasar build -m electron -P always"
   },
   "dependencies": {
-    "axios": "0.19.2",
-    "body-parser": "1.19.0",
-    "cors": "2.8.5",
-    "electron-log": "4.0.6",
-    "electron-squirrel-startup": "1.0.0",
-    "electron-store": "6.0.0",
-    "electron-updater": "4.2.2",
-    "express": "4.17.1",
-    "fluent-ffmpeg": "2.1.2",
-    "request": "2.88.2",
-    "video.js": "7.6.6",
-    "vue-i18n": "8.20.0",
-    "vue-video-player": "5.0.2",
-    "ytdl-core": "3.1.2"
+    "@quasar/extras": "^1.16.12",
+    "axios": "^1.7.7",
+    "electron-log": "^5.2.0",
+    "electron-store": "^10.0.0",
+    "electron-updater": "^6.3.4",
+    "express": "^4.21.0",
+    "fluent-ffmpeg": "^2.1.3",
+    "pinia": "^2.2.2",
+    "quasar": "^2.16.11",
+    "video.js": "^8.23.4",
+    "vue": "^3.4.38",
+    "vue-i18n": "^9.14.5",
+    "vue-router": "^4.4.3",
+    "ytdl-core": "^4.11.5"
   },
   "devDependencies": {
-    "babel-eslint": "10.0.3",
-    "devtron": "1.4.0",
-    "electron": "9.1.2",
-    "electron-builder": "22.8.0",
-    "electron-debug": "3.0.1",
-    "electron-devtools-installer": "3.1.1",
-    "electron-packager": "14.2.1",
-    "eslint": "7.6.0",
-    "eslint-config-standard": "14.1.1",
-    "eslint-friendly-formatter": "4.0.1",
-    "eslint-loader": "3.0.3",
-    "eslint-plugin-import": "2.20.1",
-    "eslint-plugin-node": "11.0.0",
-    "eslint-plugin-promise": "4.2.1",
-    "eslint-plugin-standard": "4.0.1",
-    "eslint-plugin-vue": "6.2.1",
-    "quasar-cli": "0.17.26",
-    "strip-ansi": "6.0.0"
+    "@eslint/js": "^9.36.0",
+    "@quasar/app-vite": "^2.0.0-beta.21",
+    "autoprefixer": "^10.4.21",
+    "electron": "^32.1.2",
+    "electron-builder": "^25.0.5",
+    "eslint": "^9.11.1",
+    "eslint-plugin-vue": "^9.28.0",
+    "postcss": "^8.5.6"
   },
   "engines": {
-    "node": ">= 8.9.0",
-    "npm": ">= 5.6.0",
-    "yarn": ">= 1.6.0"
-  },
-  "browserslist": [
-    "> 1%",
-    "last 2 versions",
-    "not ie <= 10"
-  ]
+    "node": "^18 || ^20 || ^21",
+    "npm": ">= 6.13.4",
+    "yarn": ">= 1.21.1"
+  }
 }

@@ -1,14 +1,16 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
+import { store } from 'quasar/wrappers'
+import { createPinia } from 'pinia'
 
-import example from './module-example'
+/*
+ * When adding new properties to stores, you should also
+ * extend the `PiniaCustomProperties` interface.
+ * @see https://pinia.vuejs.org/core-concepts/plugins.html#typing-new-store-properties
+ */
+export default store((/* { ssrContext } */) => {
+  const pinia = createPinia()
 
-Vue.use(Vuex)
+  // You can add Pinia plugins here
+  // pinia.use(SomePiniaPlugin)
 
-const store = new Vuex.Store({
-  modules: {
-    example
-  }
+  return pinia
 })
-
-export default store
