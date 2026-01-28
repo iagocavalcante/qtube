@@ -1,10 +1,12 @@
 import { app, BrowserWindow, nativeTheme, ipcMain } from 'electron'
 import path from 'path'
 import os from 'os'
+import fs from 'fs'
 import { fileURLToPath } from 'url'
 import pkg from 'electron-updater'
 const { autoUpdater } = pkg
 import log from 'electron-log'
+import server from './main-process/server/server.js'
 
 // ES modules fix for __dirname
 const __filename = fileURLToPath(import.meta.url)
@@ -12,6 +14,9 @@ const __dirname = path.dirname(__filename)
 
 // needed in case process is undefined under Linux
 const platform = process.platform || os.platform()
+
+// Default download path
+const defaultPath = `${app.getPath('downloads')}/Ytdown/`.replace(/\\/g, '/')
 
 // configure logging
 autoUpdater.logger = log
@@ -44,6 +49,9 @@ function createWindow () {
   })
 
   mainWindow.loadURL(process.env.APP_URL)
+
+  // Start the Express server for downloads
+  server.listen(defaultPath)
 
   if (process.env.DEBUGGING) {
     // if on DEV or Production with debug enabled
@@ -89,34 +97,47 @@ ipcMain.on('quitAndInstall', () => {
   autoUpdater.quitAndInstall()
 })
 
-// File system operations - you may need to adapt these based on your needs
-ipcMain.handle('createYtDownFolder', async () => {
-  // Implement your folder creation logic here
-  return true
+// File system operations
+ipcMain.on('createYtDownFolder', (event) => {
+  if (!fs.existsSync(defaultPath)) {
+    fs.mkdirSync(defaultPath, { recursive: true })
+  }
+  event.returnValue = defaultPath
 })
 
-ipcMain.handle('createVideosFolder', async () => {
-  // Implement your folder creation logic here
-  return true
+ipcMain.on('createVideosFolder', (event) => {
+  const videosPath = `${defaultPath}/videos`.replace(/\\/g, '/')
+  if (!fs.existsSync(videosPath)) {
+    fs.mkdirSync(videosPath, { recursive: true })
+  }
+  event.returnValue = videosPath
 })
 
-ipcMain.handle('createMusicFolder', async () => {
-  // Implement your folder creation logic here
-  return true
+ipcMain.on('createMusicFolder', (event) => {
+  const musicsPath = `${defaultPath}/musics`.replace(/\\/g, '/')
+  if (!fs.existsSync(musicsPath)) {
+    fs.mkdirSync(musicsPath, { recursive: true })
+  }
+  event.returnValue = musicsPath
 })
 
-ipcMain.handle('createDatabaseFolder', async () => {
-  // Implement your folder creation logic here
-  return true
+ipcMain.on('createDatabaseFolder', (event) => {
+  const databasePath = `${defaultPath}/database`.replace(/\\/g, '/')
+  if (!fs.existsSync(databasePath)) {
+    fs.mkdirSync(databasePath, { recursive: true })
+  }
+  event.returnValue = databasePath
 })
 
-ipcMain.handle('createFileDatabase', async () => {
-  // Implement your database creation logic here
-  return true
+ipcMain.on('createFileDatabase', (event) => {
+  const databasePath = `${defaultPath}/database`.replace(/\\/g, '/')
+  if (!fs.existsSync(`${databasePath}/ytdown.json`)) {
+    const yt = { videos: [], musics: [] }
+    fs.writeFileSync(`${databasePath}/ytdown.json`, JSON.stringify(yt))
+  }
+  event.returnValue = `${databasePath}/ytdown.json`
 })
 
-ipcMain.handle('getFolderApp', async () => {
-  // Return the app's download directory
-  const downloadsPath = app.getPath('downloads')
-  return `${downloadsPath}/Ytdown/`
+ipcMain.on('getFolderApp', (event) => {
+  event.returnValue = defaultPath
 })
