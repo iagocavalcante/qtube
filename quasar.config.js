@@ -178,7 +178,20 @@ export default configure(function (ctx) {
         },
         win: {
           target: 'nsis'
-        }
+        },
+        mac: {
+          target: 'dmg'
+        },
+        linux: {
+          target: 'AppImage'
+        },
+        extraResources: [
+          {
+            from: 'bin/',
+            to: 'bin/',
+            filter: ['yt-dlp*']
+          }
+        ]
       }
     },
 
