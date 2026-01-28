@@ -28,7 +28,7 @@
     "quasar": "^2.16.11",
     "video.js": "^8.23.4",
     "vue": "^3.4.38",
-    "vue-i18n": "^9.14.5",
+    "vue-i18n": "^11.0.0",
     "vue-router": "^4.4.3"
   },
   "devDependencies": {
