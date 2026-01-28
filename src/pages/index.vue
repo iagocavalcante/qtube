@@ -1,24 +1,20 @@
 <template>
-  <q-page class="flex flex-center row">
-    <q-field
-      class="col-8"
+  <q-page class="flex flex-center column q-pa-md" style="width: 100%;">
+    <q-input
+      v-model="youtubeUrl"
+      color="purple"
+      label="Video URL"
+      required
+      outlined
+      class="full-width q-mb-md"
     >
-      <q-input 
-        v-model="youtubeUrl" 
-        color="purple" 
-        label="Video URL" 
-        required
-        outlined
-      >
-        <template v-slot:prepend>
-          <q-icon name="ondemand_video" color="purple" />
-        </template>
-      </q-input>
-    </q-field>
+      <template v-slot:prepend>
+        <q-icon name="ondemand_video" color="purple" />
+      </template>
+    </q-input>
     <q-ajax-bar ref="bar" position="bottom" color="purple" size="18px"/>
-    <div class="flex flex-center q-pa-sm">
+    <div class="flex q-gutter-sm">
       <q-btn
-        class="col-5"
         color="purple"
         size="lg"
         label="Download"
@@ -31,8 +27,7 @@
           Downloading...
         </template>
       </q-btn>
-    </div>
-    <q-btn-dropdown icon="build" class="on-right round" color="purple">
+      <q-btn-dropdown icon="build" color="purple">
       <q-list>
         <q-item 
           v-for="(option, index) of options" 
@@ -49,8 +44,9 @@
             </q-item-label>
           </q-item-section>
         </q-item>
-      </q-list>
-    </q-btn-dropdown>
+        </q-list>
+      </q-btn-dropdown>
+    </div>
   </q-page>
 </template>
 
