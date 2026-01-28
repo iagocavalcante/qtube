@@ -1,17 +1,21 @@
-const { spawn } = require('child_process')
-const path = require('path')
-const fs = require('fs')
+import { spawn } from 'child_process'
+import path from 'path'
+import fs from 'fs'
+import { fileURLToPath } from 'url'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 /**
  * Get the path to the yt-dlp binary based on platform and environment
  */
-function getBinaryPath() {
+export function getBinaryPath() {
   const platform = process.platform
   const binName = platform === 'win32' ? 'yt-dlp.exe' : 'yt-dlp'
 
   // Check if running in packaged Electron app
-  const isPackaged = process.mainModule?.filename?.includes('app.asar') ||
-    process.argv[0]?.includes('Electron')
+  const isPackaged = process.argv[0]?.includes('Electron') ||
+    process.execPath?.includes('Electron')
 
   let basePath
   if (isPackaged && process.resourcesPath) {
@@ -29,7 +33,7 @@ function getBinaryPath() {
  * @param {string} url - YouTube URL (supports regular videos, shorts, etc.)
  * @returns {Promise<Object>} Video info object
  */
-function getInfo(url) {
+export function getInfo(url) {
   return new Promise((resolve, reject) => {
     const ytdlp = getBinaryPath()
     const args = ['--dump-json', '--no-playlist', url]
@@ -81,7 +85,7 @@ function getInfo(url) {
  * @param {function} onProgress - Progress callback (percent, speed, eta)
  * @returns {Promise<string>} Path to downloaded file
  */
-function downloadVideo(url, outputDir, title, onProgress) {
+export function downloadVideo(url, outputDir, title, onProgress) {
   return new Promise((resolve, reject) => {
     const ytdlp = getBinaryPath()
     const outputPath = path.join(outputDir, `${title}.mp4`)
@@ -146,7 +150,7 @@ function downloadVideo(url, outputDir, title, onProgress) {
  * @param {function} onProgress - Progress callback
  * @returns {Promise<string>} Path to downloaded file
  */
-function downloadAudio(url, outputDir, title, onProgress) {
+export function downloadAudio(url, outputDir, title, onProgress) {
   return new Promise((resolve, reject) => {
     const ytdlp = getBinaryPath()
     const outputPath = path.join(outputDir, `${title}.mp3`)
@@ -233,11 +237,4 @@ function parseError(stderr) {
     return 'Unable to extract video information'
   }
   return null
-}
-
-module.exports = {
-  getBinaryPath,
-  getInfo,
-  downloadVideo,
-  downloadAudio
 }

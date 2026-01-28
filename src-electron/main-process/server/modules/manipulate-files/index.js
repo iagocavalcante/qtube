@@ -1,13 +1,9 @@
-const fs = require('fs')
+import fs from 'fs'
 
-const createDir = (directory) => {
-  fs.mkdir(directory, function (err) {
+export const createDir = (directory) => {
+  fs.mkdir(directory, { recursive: true }, function (err) {
     if (err) {
       console.log(err)
     }
   })
-}
-
-module.exports = {
-  createDir
 }

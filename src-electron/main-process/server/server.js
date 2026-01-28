@@ -1,9 +1,9 @@
-const express = require('express')
-const bodyParser = require('body-parser')
-const fs = require('fs')
-const path = require('path')
-const cors = require('cors')
-const modules = require('./modules')
+import express from 'express'
+import bodyParser from 'body-parser'
+import fs from 'fs'
+import path from 'path'
+import cors from 'cors'
+import { manipulateFiles, ytdlp } from './modules/index.js'
 
 function insertToDatabase(__statics, ytdown, type) {
   fs.readFile(path.join(__statics, 'database/ytdown.json'), function (err, content) {
@@ -32,12 +32,12 @@ export const listen = (__statics) => {
 
   app.post('/api/download', async (req, res) => {
     try {
-      const info = await modules.ytdlp.getInfo(req.body.youtubeUrl)
+      const info = await ytdlp.getInfo(req.body.youtubeUrl)
       const title = info.title.replace(/[!?@#$%^&*|\.\;]/g, "")
       const outputDir = path.join(__statics, `videos/${title}/`)
-      modules.manipulateFiles.createDir(outputDir)
+      manipulateFiles.createDir(outputDir)
 
-      await modules.ytdlp.downloadVideo(req.body.youtubeUrl, outputDir, title, (progress) => {
+      await ytdlp.downloadVideo(req.body.youtubeUrl, outputDir, title, (progress) => {
         console.log(`Download progress: ${progress.percent}%`)
       })
 
@@ -59,12 +59,12 @@ export const listen = (__statics) => {
 
   app.post('/api/download-mp3', async (req, res) => {
     try {
-      const info = await modules.ytdlp.getInfo(req.body.youtubeUrl)
+      const info = await ytdlp.getInfo(req.body.youtubeUrl)
       const title = info.title.replace(/[!?@#$%^&*|\.\;]/g, "")
       const outputDir = path.join(__statics, `musics/${title}/`)
-      modules.manipulateFiles.createDir(outputDir)
+      manipulateFiles.createDir(outputDir)
 
-      const musicPath = await modules.ytdlp.downloadAudio(req.body.youtubeUrl, outputDir, title, (progress) => {
+      const musicPath = await ytdlp.downloadAudio(req.body.youtubeUrl, outputDir, title, (progress) => {
         console.log(`Download progress: ${progress.percent}%`)
       })
 
@@ -86,12 +86,12 @@ export const listen = (__statics) => {
 
   app.post('/api/download-playlist', async (req, res) => {
     try {
-      const info = await modules.ytdlp.getInfo(req.body.youtubeUrl)
+      const info = await ytdlp.getInfo(req.body.youtubeUrl)
       const title = info.title.replace(/[!?@#$%^&*|\.\;]/g, "")
       const outputDir = path.join(__statics, `musics/${title}/`)
-      modules.manipulateFiles.createDir(outputDir)
+      manipulateFiles.createDir(outputDir)
 
-      const musicPath = await modules.ytdlp.downloadAudio(req.body.youtubeUrl, outputDir, title)
+      const musicPath = await ytdlp.downloadAudio(req.body.youtubeUrl, outputDir, title)
 
       // Insert into database
       const ytdown = {
