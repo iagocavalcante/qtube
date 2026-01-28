@@ -23,7 +23,7 @@
     "electron-log": "^5.2.0",
     "electron-store": "^10.0.0",
     "electron-updater": "^6.3.4",
-    "express": "^4.21.0",
+    "express": "^5.0.0",
     "pinia": "^2.2.2",
     "quasar": "^2.16.11",
     "video.js": "^8.23.4",
