@@ -17,3 +17,7 @@ yarn-error.log*
 *.ntvs*
 *.njsproj
 *.sln
+
+# yt-dlp binaries
+bin/yt-dlp
+bin/yt-dlp.exe
