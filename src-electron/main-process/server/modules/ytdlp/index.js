@@ -13,16 +13,17 @@ export function getBinaryPath() {
   const platform = process.platform
   const binName = platform === 'win32' ? 'yt-dlp.exe' : 'yt-dlp'
 
-  // Check if running in packaged Electron app
-  const isPackaged = process.argv[0]?.includes('Electron') ||
-    process.execPath?.includes('Electron')
+  // Check if running in packaged Electron app (production)
+  // In production, resourcesPath points to app.asar unpacked resources
+  const isProduction = process.env.PROD ||
+    (process.resourcesPath && !process.resourcesPath.includes('node_modules'))
 
   let basePath
-  if (isPackaged && process.resourcesPath) {
+  if (isProduction && process.resourcesPath) {
     basePath = path.join(process.resourcesPath, 'bin')
   } else {
-    // Development: look in project root bin folder
-    basePath = path.join(__dirname, '../../../../../bin')
+    // Development: use current working directory (project root)
+    basePath = path.join(process.cwd(), 'bin')
   }
 
   return path.join(basePath, binName)
