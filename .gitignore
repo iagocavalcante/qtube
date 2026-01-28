@@ -18,6 +18,8 @@ yarn-error.log*
 *.njsproj
 *.sln
 
-# yt-dlp binaries
+# yt-dlp and ffmpeg binaries
 bin/yt-dlp
 bin/yt-dlp.exe
+bin/ffmpeg
+bin/ffmpeg.exe

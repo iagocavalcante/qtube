@@ -7,26 +7,37 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 /**
+ * Get the bin directory path based on environment
+ */
+function getBinDir() {
+  // Check if running in packaged Electron app (production)
+  const isProduction = process.env.PROD ||
+    (process.resourcesPath && !process.resourcesPath.includes('node_modules'))
+
+  if (isProduction && process.resourcesPath) {
+    return path.join(process.resourcesPath, 'bin')
+  } else {
+    // Development: use current working directory (project root)
+    return path.join(process.cwd(), 'bin')
+  }
+}
+
+/**
  * Get the path to the yt-dlp binary based on platform and environment
  */
 export function getBinaryPath() {
   const platform = process.platform
   const binName = platform === 'win32' ? 'yt-dlp.exe' : 'yt-dlp'
+  return path.join(getBinDir(), binName)
+}
 
-  // Check if running in packaged Electron app (production)
-  // In production, resourcesPath points to app.asar unpacked resources
-  const isProduction = process.env.PROD ||
-    (process.resourcesPath && !process.resourcesPath.includes('node_modules'))
-
-  let basePath
-  if (isProduction && process.resourcesPath) {
-    basePath = path.join(process.resourcesPath, 'bin')
-  } else {
-    // Development: use current working directory (project root)
-    basePath = path.join(process.cwd(), 'bin')
-  }
-
-  return path.join(basePath, binName)
+/**
+ * Get the path to ffmpeg binary
+ */
+export function getFfmpegPath() {
+  const platform = process.platform
+  const binName = platform === 'win32' ? 'ffmpeg.exe' : 'ffmpeg'
+  return path.join(getBinDir(), binName)
 }
 
 /**
@@ -100,6 +111,7 @@ export function downloadVideo(url, outputDir, title, onProgress) {
       '--convert-thumbnails', 'jpg',
       '--no-playlist',
       '--newline', // Progress on new lines for easier parsing
+      '--ffmpeg-location', getFfmpegPath(),
       url
     ]
 
@@ -165,6 +177,7 @@ export function downloadAudio(url, outputDir, title, onProgress) {
       '--convert-thumbnails', 'jpg',
       '--no-playlist',
       '--newline',
+      '--ffmpeg-location', getFfmpegPath(),
       url
     ]
 

@@ -189,7 +189,7 @@ export default configure(function (ctx) {
           {
             from: 'bin/',
             to: 'bin/',
-            filter: ['yt-dlp*']
+            filter: ['yt-dlp*', 'ffmpeg*']
           }
         ]
       }
