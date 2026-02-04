@@ -4,94 +4,658 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <meta name="description" content="QTube - Download videos from YouTube with ease">
-  <meta name="keywords" content="Qtube,Quasar App,Electron,JavaScript,YouTube,Download">
+  <meta name="description" content="QTube - Download videos from YouTube with ease. Free, cross-platform desktop app with MP3 extraction and auto-updates.">
+  <meta name="keywords" content="Qtube,YouTube Downloader,MP3 Extractor,Electron,Cross-Platform,macOS,Windows,Linux">
   <meta name="author" content="Iago Cavalcante">
-  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU"
-    crossorigin="anonymous">
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
-    crossorigin="anonymous">
-  <link rel="stylesheet" href="src/css/index.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=K2D:wght@400;600;700&family=Roboto+Mono:wght@300;400;500&display=swap" rel="stylesheet">
   <title>QTube - Download YouTube Videos</title>
+  <style>
+    /* CSS Reset & Base Styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      /* Brand Colors */
+      --gradient-start: #D98656;
+      --gradient-end: #CC2E2F;
+      --footer-bg: #8e0a0a;
+      --text-light: #f0f8ff;
+      --text-dark: #333;
+      --bg-light: #ffffff;
+      --bg-card: #ffffff;
+
+      /* Functional Colors */
+      --accent-blue: #4a90e2;
+      --accent-green: #27ae60;
+      --accent-purple: #9b59b6;
+      --accent-orange: #e67e22;
+
+      /* Spacing */
+      --spacing-xs: 0.5rem;
+      --spacing-sm: 1rem;
+      --spacing-md: 2rem;
+      --spacing-lg: 3rem;
+      --spacing-xl: 4rem;
+
+      /* Typography */
+      --font-heading: 'K2D', sans-serif;
+      --font-body: 'Roboto Mono', monospace;
+
+      /* Shadows */
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+      --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
+      --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.16);
+
+      /* Transitions */
+      --transition-fast: 0.2s ease;
+      --transition-smooth: 0.3s ease;
+    }
+
+    body {
+      font-family: var(--font-body);
+      color: var(--text-dark);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Hero Section */
+    .hero {
+      background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+      color: var(--text-light);
+      padding: var(--spacing-xl) var(--spacing-md);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    .hero-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .logo {
+      max-width: 400px;
+      width: 100%;
+      height: auto;
+      margin: 0 auto var(--spacing-md);
+      filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
+      animation: fadeInDown 0.8s ease;
+    }
+
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .hero h1 {
+      font-family: var(--font-heading);
+      font-size: clamp(1.75rem, 4vw, 2.5rem);
+      font-weight: 700;
+      margin-bottom: var(--spacing-sm);
+      animation: fadeInUp 0.8s ease 0.2s both;
+    }
+
+    .hero p {
+      font-size: clamp(1rem, 2vw, 1.25rem);
+      font-weight: 300;
+      opacity: 0.95;
+      margin-bottom: var(--spacing-md);
+      animation: fadeInUp 0.8s ease 0.4s both;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 var(--spacing-md);
+    }
+
+    /* Section Styles */
+    section {
+      padding: var(--spacing-xl) 0;
+    }
+
+    section h2 {
+      font-family: var(--font-heading);
+      font-size: clamp(1.75rem, 3vw, 2.25rem);
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: var(--spacing-md);
+      color: var(--text-dark);
+    }
+
+    /* Download Section */
+    .download-section {
+      background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%);
+    }
+
+    .version-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+      color: var(--text-light);
+      padding: var(--spacing-xs) var(--spacing-md);
+      border-radius: 50px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: var(--spacing-md);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .download-buttons {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-md);
+    }
+
+    .download-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--spacing-sm);
+      padding: var(--spacing-md) var(--spacing-lg);
+      font-family: var(--font-heading);
+      font-size: 1.1rem;
+      font-weight: 600;
+      text-decoration: none;
+      border-radius: 12px;
+      transition: all var(--transition-smooth);
+      box-shadow: var(--shadow-md);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .download-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .download-btn:hover::before {
+      left: 100%;
+    }
+
+    .download-btn:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .download-btn i {
+      font-size: 1.5rem;
+    }
+
+    .download-btn.macos {
+      background: linear-gradient(135deg, #4a4a4a 0%, #2c2c2c 100%);
+      color: var(--text-light);
+    }
+
+    .download-btn.windows {
+      background: linear-gradient(135deg, #0078d4 0%, #005a9e 100%);
+      color: var(--text-light);
+    }
+
+    .download-btn.linux {
+      background: linear-gradient(135deg, #f89820 0%, #e67e22 100%);
+      color: var(--text-light);
+    }
+
+    .download-links {
+      text-align: center;
+      margin-top: var(--spacing-md);
+    }
+
+    .download-links a {
+      color: var(--gradient-end);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color var(--transition-fast);
+    }
+
+    .download-links a:hover {
+      color: var(--gradient-start);
+      text-decoration: underline;
+    }
+
+    /* Features Section */
+    .features-section {
+      background: #ffffff;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: var(--spacing-md);
+      margin-top: var(--spacing-lg);
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      padding: var(--spacing-lg);
+      border-radius: 16px;
+      text-align: center;
+      transition: all var(--transition-smooth);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .feature-card:hover {
+      transform: translateY(-8px);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--gradient-start);
+    }
+
+    .feature-icon {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto var(--spacing-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      font-size: 2rem;
+      color: var(--text-light);
+      transition: transform var(--transition-smooth);
+    }
+
+    .feature-card:hover .feature-icon {
+      transform: scale(1.1) rotate(5deg);
+    }
+
+    .feature-icon.icon-1 {
+      background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    }
+
+    .feature-icon.icon-2 {
+      background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    }
+
+    .feature-icon.icon-3 {
+      background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+    }
+
+    .feature-icon.icon-4 {
+      background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+    }
+
+    .feature-card h3 {
+      font-family: var(--font-heading);
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin-bottom: var(--spacing-sm);
+      color: var(--text-dark);
+    }
+
+    .feature-card p {
+      color: #666;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    /* Contribute Section */
+    .contribute-section {
+      background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
+    }
+
+    .contribute-content {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .contribute-buttons {
+      display: flex;
+      gap: var(--spacing-md);
+      justify-content: center;
+      margin: var(--spacing-md) 0;
+      flex-wrap: wrap;
+    }
+
+    .contribute-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      padding: var(--spacing-md) var(--spacing-lg);
+      font-family: var(--font-heading);
+      font-size: 1rem;
+      font-weight: 600;
+      text-decoration: none;
+      border-radius: 10px;
+      transition: all var(--transition-smooth);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .contribute-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn-github {
+      background: linear-gradient(135deg, #333 0%, #24292e 100%);
+      color: var(--text-light);
+    }
+
+    .btn-fork {
+      background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+      color: var(--text-light);
+    }
+
+    .code-block {
+      background: #2d2d2d;
+      color: #f8f8f2;
+      padding: var(--spacing-md);
+      border-radius: 10px;
+      margin-top: var(--spacing-md);
+      box-shadow: var(--shadow-md);
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      overflow-x: auto;
+    }
+
+    .code-block ul {
+      list-style: none;
+    }
+
+    .code-block li {
+      padding: var(--spacing-xs) 0;
+      line-height: 1.8;
+    }
+
+    .code-comment {
+      color: #75715e;
+      font-style: italic;
+    }
+
+    .code-command {
+      color: #66d9ef;
+    }
+
+    /* Footer */
+    footer {
+      background: linear-gradient(135deg, var(--footer-bg) 0%, #6b0808 100%);
+      color: var(--text-light);
+      padding: var(--spacing-lg) 0;
+      text-align: center;
+    }
+
+    .footer-content {
+      font-size: 0.95rem;
+    }
+
+    .footer-content p {
+      margin: var(--spacing-xs) 0;
+      opacity: 0.95;
+    }
+
+    .footer-content a {
+      color: var(--text-light);
+      text-decoration: none;
+      font-weight: 500;
+      transition: all var(--transition-fast);
+      border-bottom: 1px solid transparent;
+    }
+
+    .footer-content a:hover {
+      opacity: 1;
+      border-bottom-color: var(--text-light);
+    }
+
+    .footer-divider {
+      width: 60px;
+      height: 3px;
+      background: var(--gradient-start);
+      margin: var(--spacing-md) auto;
+      border-radius: 2px;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      :root {
+        --spacing-xl: 2.5rem;
+        --spacing-lg: 2rem;
+      }
+
+      .hero {
+        padding: var(--spacing-lg) var(--spacing-md);
+      }
+
+      .logo {
+        max-width: 280px;
+      }
+
+      .download-buttons {
+        grid-template-columns: 1fr;
+      }
+
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .contribute-buttons {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .contribute-btn {
+        width: 100%;
+        max-width: 300px;
+        justify-content: center;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .code-block {
+        font-size: 0.8rem;
+        padding: var(--spacing-sm);
+      }
+    }
+
+    /* Accessibility */
+    .download-btn:focus,
+    .contribute-btn:focus,
+    a:focus {
+      outline: 3px solid var(--accent-blue);
+      outline-offset: 2px;
+    }
+
+    /* Print Styles */
+    @media print {
+      .download-btn,
+      .contribute-btn {
+        box-shadow: none;
+      }
+    }
+  </style>
 </head>
 
 <body>
-  <header class="header">
-    <picture class="logo">
-      <img src="src/img/logo-qtube.svg" alt="QTube" >
-    </picture>
-  </header>
-  <main class="main-content">
-    <div class="container">
-    <div class="titulos">
-      <h6 class="h4">Download videos from YouTube with ease</h6>
-      <p class="text-muted">Built with Quasar and Electron</p>
+  <!-- Hero Section -->
+  <header class="hero">
+    <div class="hero-content">
+      <img src="src/img/logo-qtube.svg" alt="QTube Logo" class="logo">
+      <h1>Download YouTube Videos with Ease</h1>
+      <p>Free, open-source desktop app for macOS, Windows, and Linux</p>
     </div>
-    <section class="releases mt-3">
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title">Download v{{VERSION}}</h5>
-          <div class="row mt-3">
-            <div class="col-md-4 mb-2">
-              <a class="btn btn-primary btn-block" href="https://github.com/iagocavalcante/qtube/releases/download/v{{VERSION}}/QTube-{{VERSION}}.dmg">
-                <i class="fab fa-apple"></i> macOS
-              </a>
-            </div>
-            <div class="col-md-4 mb-2">
-              <a class="btn btn-info btn-block" href="https://github.com/iagocavalcante/qtube/releases/download/v{{VERSION}}/QTube-Setup-{{VERSION}}.exe">
-                <i class="fab fa-windows"></i> Windows
-              </a>
-            </div>
-            <div class="col-md-4 mb-2">
-              <a class="btn btn-warning btn-block" href="https://github.com/iagocavalcante/qtube/releases/download/v{{VERSION}}/QTube-{{VERSION}}.AppImage">
-                <i class="fab fa-linux"></i> Linux
-              </a>
-            </div>
+  </header>
+
+  <!-- Download Section -->
+  <section class="download-section">
+    <div class="container">
+      <h2>Get QTube</h2>
+      <div style="text-align: center;">
+        <span class="version-badge">Version {{VERSION}}</span>
+      </div>
+
+      <div class="download-buttons">
+        <a href="https://github.com/iagocavalcante/qtube/releases/download/v{{VERSION}}/QTube-{{VERSION}}.dmg"
+           class="download-btn macos"
+           aria-label="Download QTube for macOS">
+          <i class="fa-brands fa-apple" aria-hidden="true"></i>
+          <span>Download for macOS</span>
+        </a>
+
+        <a href="https://github.com/iagocavalcante/qtube/releases/download/v{{VERSION}}/QTube-Setup-{{VERSION}}.exe"
+           class="download-btn windows"
+           aria-label="Download QTube for Windows">
+          <i class="fa-brands fa-windows" aria-hidden="true"></i>
+          <span>Download for Windows</span>
+        </a>
+
+        <a href="https://github.com/iagocavalcante/qtube/releases/download/v{{VERSION}}/QTube-{{VERSION}}.AppImage"
+           class="download-btn linux"
+           aria-label="Download QTube for Linux">
+          <i class="fa-brands fa-linux" aria-hidden="true"></i>
+          <span>Download for Linux</span>
+        </a>
+      </div>
+
+      <div class="download-links">
+        <a href="https://github.com/iagocavalcante/qtube/releases" target="_blank" rel="noopener noreferrer">
+          View all releases <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features-section">
+    <div class="container">
+      <h2>Why Choose QTube?</h2>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon icon-1">
+            <i class="fa-brands fa-youtube" aria-hidden="true"></i>
           </div>
-          <p class="card-text mt-3">
-            <a href="https://github.com/iagocavalcante/qtube/releases" target="_blank">View all releases</a>
-          </p>
+          <h3>YouTube Downloads</h3>
+          <p>Download videos from YouTube in multiple quality options. Save your favorite content for offline viewing.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon icon-2">
+            <i class="fa-solid fa-music" aria-hidden="true"></i>
+          </div>
+          <h3>MP3 Extraction</h3>
+          <p>Extract audio from videos and save as MP3. Perfect for creating your music library or podcast collection.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon icon-3">
+            <i class="fa-solid fa-laptop" aria-hidden="true"></i>
+          </div>
+          <h3>Cross-Platform</h3>
+          <p>Works seamlessly on macOS, Windows, and Linux. Built with Electron and Quasar for a native experience.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon icon-4">
+            <i class="fa-solid fa-rocket" aria-hidden="true"></i>
+          </div>
+          <h3>Auto Updates</h3>
+          <p>Stay up to date with automatic updates. Get the latest features and improvements without manual downloads.</p>
         </div>
       </div>
-    </section>
-    <section class="init mt-2">
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title">How to contribute?</h5>
-          <p>Before starting the contribution, make a <b>Fork</b> in the project.</p>
-          <div class="row">
-            <div class="col-6">
-              <a class="btn btn-primary rounded" href="https://github.com/iagocavalcante/qtube" target="_blank">
-                Repository <i class="fab fa-github"></i>
-              </a>
-            </div>
-            <div class="col-6">
-              <a class="btn btn-success" href="https://github.com/iagocavalcante/qtube/fork" target="_blank">
-                Fork <i class="fas fa-code-branch"></i>
-              </a>
-            </div>
-          </div>
-          <ul class="m-3 bg-dark text-white text-left">
-            <li class="p-1">$ git clone https://github.com/iagocavalcante/qtube.git</li>
-            <li class="p-1">$ cd qtube</li>
-            <li class="p-1">$ npm install</li>
-            <li class="p-1" style="color:#a1a1a1"># Development mode</li>
-            <li class="p-1">$ npm run dev</li>
+    </div>
+  </section>
+
+  <!-- Contribute Section -->
+  <section class="contribute-section">
+    <div class="container">
+      <div class="contribute-content">
+        <h2>Contribute to QTube</h2>
+        <p style="text-align: center; color: #666; margin-bottom: var(--spacing-md);">
+          QTube is open source and welcomes contributions. Fork the repository and help make it better!
+        </p>
+
+        <div class="contribute-buttons">
+          <a href="https://github.com/iagocavalcante/qtube"
+             class="contribute-btn btn-github"
+             target="_blank"
+             rel="noopener noreferrer"
+             aria-label="Visit QTube GitHub repository">
+            <i class="fa-brands fa-github" aria-hidden="true"></i>
+            <span>View Repository</span>
+          </a>
+
+          <a href="https://github.com/iagocavalcante/qtube/fork"
+             class="contribute-btn btn-fork"
+             target="_blank"
+             rel="noopener noreferrer"
+             aria-label="Fork QTube repository">
+            <i class="fa-solid fa-code-branch" aria-hidden="true"></i>
+            <span>Fork Project</span>
+          </a>
+        </div>
+
+        <div class="code-block">
+          <ul>
+            <li><span class="code-command">$</span> git clone https://github.com/iagocavalcante/qtube.git</li>
+            <li><span class="code-command">$</span> cd qtube</li>
+            <li><span class="code-command">$</span> npm install</li>
+            <li class="code-comment"># Development mode</li>
+            <li><span class="code-command">$</span> npm run dev</li>
           </ul>
         </div>
       </div>
-    </section>
     </div>
-  </main>
-  <footer class="footer">
+  </section>
+
+  <!-- Footer -->
+  <footer>
     <div class="container">
-      <ul class="rodape">
-        <li><strong>License:</strong> MIT</li>
-        <li>Project developed by <a href="https://github.com/iagocavalcante" target="_blank">Iago Cavalcante</a></li>
-        <li>Website developed with ❤ by <a href="https://github.com/iagocavalcante/qtube/graphs/contributors" target="_blank">Contributors</a></li>
-      </ul>
+      <div class="footer-content">
+        <div class="footer-divider"></div>
+        <p><strong>License:</strong> MIT</p>
+        <p>
+          Project developed by
+          <a href="https://github.com/iagocavalcante" target="_blank" rel="noopener noreferrer">Iago Cavalcante</a>
+        </p>
+        <p>
+          Website developed with passion by
+          <a href="https://github.com/iagocavalcante/qtube/graphs/contributors" target="_blank" rel="noopener noreferrer">Contributors</a>
+        </p>
+      </div>
     </div>
   </footer>
 </body>
-
 </html>
