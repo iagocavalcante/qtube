@@ -40,15 +40,18 @@
 </template>
 
 <script>
-import { ipcRenderer } from 'electron'
-
 export default {
   name: 'Musics',
   data () {
     return {
       infos: [],
       checkDatabase: false,
-      appFolder: ipcRenderer.sendSync('getFolderApp')
+      appFolder: ''
+    }
+  },
+  async created () {
+    if (window.electronAPI) {
+      this.appFolder = await window.electronAPI.getFolderApp()
     }
   },
   mounted () {
