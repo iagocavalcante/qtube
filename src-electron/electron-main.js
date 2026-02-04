@@ -44,14 +44,23 @@ function createWindow () {
     webPreferences: {
       contextIsolation: true,
       // More info: https://v2.quasar.dev/quasar-cli-vite/developing-electron-apps/electron-preload-script
-      preload: process.env.QUASAR_ELECTRON_PRELOAD ? path.resolve(__dirname, process.env.QUASAR_ELECTRON_PRELOAD) : undefined
+      preload: path.resolve(__dirname, process.env.QUASAR_ELECTRON_PRELOAD || 'electron-preload.js')
     }
   })
 
-  // Log the URL being loaded for debugging
-  log.info('Loading URL:', process.env.APP_URL)
+  // Determine the URL to load
+  let appUrl = process.env.APP_URL
+  if (!appUrl) {
+    // Production: load from built files
+    const indexPath = path.resolve(__dirname, 'index.html')
+    appUrl = `file://${indexPath}`
+  }
 
-  mainWindow.loadURL(process.env.APP_URL)
+  // Log the URL being loaded for debugging
+  log.info('Loading URL:', appUrl)
+  log.info('__dirname:', __dirname)
+
+  mainWindow.loadURL(appUrl)
 
   // Handle load failures
   mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
