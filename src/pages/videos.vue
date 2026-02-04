@@ -57,7 +57,7 @@ export default {
   methods: {
     listVideos () {
       this.$refs.bar.start()
-      this.$axios.get('http://localhost:3000/api/infos')
+      this.$axios.get('http://localhost:52847/api/infos')
         .then(data => {
           this.infos = data.data.videos
           if (this.infos.length) this.checkDatabase = true

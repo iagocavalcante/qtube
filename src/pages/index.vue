@@ -90,7 +90,7 @@ export default {
       this.isDownloading = true
       this.$refs.bar.start()
 
-      this.$axios.post('http://localhost:3000/api/download-mp3', { youtubeUrl: this.youtubeUrl })
+      this.$axios.post('http://localhost:52847/api/download-mp3', { youtubeUrl: this.youtubeUrl })
         .then(data => {
           this.resetToDefault()
           console.log('MP3 download completed:', data)
@@ -112,7 +112,7 @@ export default {
       this.isDownloading = true
       this.$refs.bar.start()
 
-      this.$axios.post('http://localhost:3000/api/download', { youtubeUrl: this.youtubeUrl })
+      this.$axios.post('http://localhost:52847/api/download', { youtubeUrl: this.youtubeUrl })
         .then(data => {
           this.resetToDefault()
           console.log('Video download completed:', data)

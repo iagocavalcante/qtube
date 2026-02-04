@@ -118,7 +118,7 @@ export const listen = (__statics) => {
     })
   })
 
-  app.listen(3000)
+  app.listen(52847)
 }
 
 export default {
