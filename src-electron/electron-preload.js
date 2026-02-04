@@ -34,7 +34,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   closeApp: () => ipcRenderer.send('close-app'),
   minimize: () => ipcRenderer.send('minimize'),
   quitAndInstall: () => ipcRenderer.send('quitAndInstall'),
-  
+
   // File system operations
   createYtDownFolder: () => ipcRenderer.invoke('createYtDownFolder'),
   createVideosFolder: () => ipcRenderer.invoke('createVideosFolder'),
@@ -42,7 +42,21 @@ contextBridge.exposeInMainWorld('electronAPI', {
   createDatabaseFolder: () => ipcRenderer.invoke('createDatabaseFolder'),
   createFileDatabase: () => ipcRenderer.invoke('createFileDatabase'),
   getFolderApp: () => ipcRenderer.invoke('getFolderApp'),
-  
+
+  // Download operations
+  downloadVideo: (url) => ipcRenderer.invoke('downloadVideo', url),
+  downloadAudio: (url) => ipcRenderer.invoke('downloadAudio', url),
+  getVideoInfo: (url) => ipcRenderer.invoke('getVideoInfo', url),
+  getDownloads: () => ipcRenderer.invoke('getDownloads'),
+
+  // Download progress events
+  onDownloadProgress: (callback) => {
+    ipcRenderer.on('downloadProgress', (event, progress) => callback(progress))
+  },
+  removeDownloadProgressListener: () => {
+    ipcRenderer.removeAllListeners('downloadProgress')
+  },
+
   // Event listeners for auto-update
   onUpdateReady: (callback) => ipcRenderer.on('updateReady', (event, info) => callback(info)),
   removeUpdateListener: () => ipcRenderer.removeAllListeners('updateReady')

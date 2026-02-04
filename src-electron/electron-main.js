@@ -6,7 +6,9 @@ import { fileURLToPath } from 'url'
 import pkg from 'electron-updater'
 const { autoUpdater } = pkg
 import log from 'electron-log'
-import server from './main-process/server/server.js'
+import * as ytdlp from './main-process/server/modules/ytdlp/index.js'
+import * as database from './main-process/modules/database.js'
+import { createDir } from './main-process/server/modules/manipulate-files/index.js'
 
 // ES modules fix for __dirname
 const __filename = fileURLToPath(import.meta.url)
@@ -14,6 +16,9 @@ const __dirname = path.dirname(__filename)
 
 // needed in case process is undefined under Linux
 const platform = process.platform || os.platform()
+
+// Disable Autofill to suppress DevTools console errors
+app.commandLine.appendSwitch('disable-features', 'AutofillServerCommunication')
 
 // Default download path
 const defaultPath = `${app.getPath('downloads')}/Ytdown/`.replace(/\\/g, '/')
@@ -44,7 +49,7 @@ function createWindow () {
     webPreferences: {
       contextIsolation: true,
       // More info: https://v2.quasar.dev/quasar-cli-vite/developing-electron-apps/electron-preload-script
-      preload: path.resolve(__dirname, process.env.QUASAR_ELECTRON_PRELOAD || 'electron-preload.js')
+      preload: path.resolve(__dirname, process.env.QUASAR_ELECTRON_PRELOAD || 'preload/electron-preload.cjs')
     }
   })
 
@@ -71,8 +76,8 @@ function createWindow () {
     log.info('Page loaded successfully')
   })
 
-  // Start the Express server for downloads
-  server.listen(defaultPath)
+  // Ensure download folders exist
+  database.ensureDatabaseExists(defaultPath)
 
   if (process.env.DEBUGGING) {
     // if on DEV or Production with debug enabled
@@ -207,4 +212,116 @@ ipcMain.handle('createFileDatabase', () => {
 
 ipcMain.handle('getFolderApp', () => {
   return defaultPath
+})
+
+// Download operations via IPC
+ipcMain.handle('downloadVideo', async (event, url) => {
+  try {
+    const info = await ytdlp.getInfo(url)
+    const title = info.title.replace(/[!?@#$%^&*|\.\;]/g, '')
+    const outputDir = path.join(defaultPath, `videos/${title}/`)
+    createDir(outputDir)
+
+    // Send initial progress
+    if (mainWindow) {
+      mainWindow.webContents.send('downloadProgress', { percent: 0, stage: 'starting', title })
+    }
+
+    await ytdlp.downloadVideo(url, outputDir, title, (progress) => {
+      log.info(`Download progress: ${progress.percent}%`)
+      if (mainWindow) {
+        mainWindow.webContents.send('downloadProgress', {
+          percent: progress.percent,
+          stage: 'downloading',
+          speed: progress.speed,
+          eta: progress.eta,
+          title
+        })
+      }
+    })
+
+    // Insert into database
+    const record = {
+      title: title,
+      description: info.description,
+      thumbnail: `videos/${title}/${title}.jpg`,
+      src: `videos/${title}/${title}.mp4`
+    }
+    database.insertToDatabase(defaultPath, record, 'video')
+
+    // Send completion
+    if (mainWindow) {
+      mainWindow.webContents.send('downloadProgress', { percent: 100, stage: 'complete', title })
+    }
+
+    return { success: true, video: record }
+  } catch (err) {
+    log.error('Download video error:', err)
+    if (mainWindow) {
+      mainWindow.webContents.send('downloadProgress', { percent: 0, stage: 'error', error: err.message })
+    }
+    throw err
+  }
+})
+
+ipcMain.handle('downloadAudio', async (event, url) => {
+  try {
+    const info = await ytdlp.getInfo(url)
+    const title = info.title.replace(/[!?@#$%^&*|\.\;]/g, '')
+    const outputDir = path.join(defaultPath, `musics/${title}/`)
+    createDir(outputDir)
+
+    // Send initial progress
+    if (mainWindow) {
+      mainWindow.webContents.send('downloadProgress', { percent: 0, stage: 'starting', title })
+    }
+
+    const musicPath = await ytdlp.downloadAudio(url, outputDir, title, (progress) => {
+      log.info(`Download progress: ${progress.percent}%`)
+      if (mainWindow) {
+        mainWindow.webContents.send('downloadProgress', {
+          percent: progress.percent,
+          stage: 'downloading',
+          speed: progress.speed,
+          eta: progress.eta,
+          title
+        })
+      }
+    })
+
+    // Insert into database
+    const record = {
+      title: title,
+      description: info.description,
+      thumbnail: `musics/${title}/${title}.jpg`,
+      src: `musics/${title}/${title}.mp3`
+    }
+    database.insertToDatabase(defaultPath, record, 'mp3')
+
+    // Send completion
+    if (mainWindow) {
+      mainWindow.webContents.send('downloadProgress', { percent: 100, stage: 'complete', title })
+    }
+
+    return { success: true, music: record, path: musicPath }
+  } catch (err) {
+    log.error('Download audio error:', err)
+    if (mainWindow) {
+      mainWindow.webContents.send('downloadProgress', { percent: 0, stage: 'error', error: err.message })
+    }
+    throw err
+  }
+})
+
+ipcMain.handle('getVideoInfo', async (event, url) => {
+  try {
+    return await ytdlp.getInfo(url)
+  } catch (err) {
+    log.error('Get video info error:', err)
+    throw err
+  }
+})
+
+ipcMain.handle('getDownloads', async () => {
+  return database.readDatabase(defaultPath)
 })

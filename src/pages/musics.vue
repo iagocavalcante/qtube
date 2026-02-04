@@ -58,19 +58,19 @@ export default {
     this.listVideos()
   },
   methods: {
-    listVideos () {
+    async listVideos () {
       this.$refs.bar.start()
-      this.$axios.get('http://localhost:52847/api/infos')
-        .then(data => {
-          this.infos = data.data.musics
-          if (this.infos.length) this.checkDatabase = true
-          else this.checkDatabase = false
-          this.$refs.bar.stop()
-        })
-        .catch(err => {
-          this.$refs.bar.stop()
-          console.log(err)
-        })
+      try {
+        if (window.electronAPI) {
+          const data = await window.electronAPI.getDownloads()
+          this.infos = data.musics || []
+          this.checkDatabase = this.infos.length > 0
+        }
+      } catch (err) {
+        console.error('Failed to load musics:', err)
+      } finally {
+        this.$refs.bar.stop()
+      }
     },
     goTo (info) {
       this.videoSelect(info)
