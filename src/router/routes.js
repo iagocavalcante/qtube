@@ -8,7 +8,7 @@ const routes = [
       { path: 'index', component: () => import('pages/index.vue') },
       { path: 'videos', component: () => import('pages/videos.vue') },
       { path: 'musics', component: () => import('pages/musics.vue') },
-      { path: 'player/:src/:img', name: 'player', component: () => import('pages/player.vue') }
+      { path: 'player', name: 'player', component: () => import('pages/player.vue') }
     ]
   },
   { // Always leave this as last one

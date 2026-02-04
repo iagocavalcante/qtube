@@ -1,26 +1,26 @@
 <template>
   <div class="video-player-container">
+    <div v-if="error" class="error-state flex flex-center column q-pa-xl">
+      <q-icon name="error_outline" size="64px" color="negative" />
+      <div class="text-h6 q-mt-md">Failed to load media</div>
+      <div class="text-body2 text-grey q-mt-sm">{{ error }}</div>
+    </div>
     <video
+      v-else
       ref="videoPlayer"
-      class="video-js vjs-default-skin"
-      :poster="img"
+      class="video-js vjs-default-skin vjs-big-play-centered"
       controls
       preload="auto"
-      width="853"
-      height="480"
-      data-setup="{}"
     >
-      <source :src="src" type="video/mp4" />
       <p class="vjs-no-js">
-        To view this video please enable JavaScript, and consider upgrading to a web browser that
-        <a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>.
+        To view this video please enable JavaScript.
       </p>
     </video>
   </div>
 </template>
 
 <script>
-import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import videojs from 'video.js'
 import 'video.js/dist/video-js.css'
 
@@ -38,47 +38,77 @@ export default {
   },
   setup(props) {
     const videoPlayer = ref(null)
+    const error = ref(null)
     let player = null
 
-    const initializePlayer = () => {
-      if (videoPlayer.value && !player) {
+    const getMediaType = (src) => {
+      if (!src) return 'video/mp4'
+      if (src.endsWith('.mp3')) return 'audio/mpeg'
+      if (src.endsWith('.mp4')) return 'video/mp4'
+      if (src.endsWith('.webm')) return 'video/webm'
+      return 'video/mp4'
+    }
+
+    const initializePlayer = async () => {
+      try {
+        // Wait for DOM to be ready
+        await nextTick()
+
+        if (!videoPlayer.value) {
+          console.error('Video element not found')
+          return
+        }
+
+        if (player) {
+          console.log('Player already initialized')
+          return
+        }
+
+        console.log('Initializing player with src:', props.src)
+
+        const mediaType = getMediaType(props.src)
+        const isAudio = mediaType.startsWith('audio')
+
         player = videojs(videoPlayer.value, {
-          height: 480,
+          height: isAudio ? 80 : 480,
           width: 853,
           controls: true,
           preload: 'auto',
           playbackRates: [0.5, 1, 1.25, 1.5, 2],
           responsive: true,
-          fluid: true,
+          fluid: !isAudio,
           sources: [{
             src: props.src,
-            type: 'video/mp4'
+            type: mediaType
           }],
-          poster: props.img
+          poster: isAudio ? '' : props.img
         })
 
         player.ready(() => {
           console.log('Video player is ready')
         })
 
-        player.on('play', () => {
-          console.log('Video started playing')
+        player.on('error', (e) => {
+          const err = player.error()
+          console.error('Video player error:', err)
+          error.value = err?.message || 'Unknown playback error'
         })
 
-        player.on('pause', () => {
-          console.log('Video paused')
-        })
+      } catch (err) {
+        console.error('Failed to initialize player:', err)
+        error.value = err.message || 'Failed to initialize player'
       }
     }
 
     const updateSource = () => {
       if (player && props.src) {
+        const mediaType = getMediaType(props.src)
         player.src({
           src: props.src,
-          type: 'video/mp4'
+          type: mediaType
         })
-        
-        if (props.img) {
+
+        if (props.img && !mediaType.startsWith('audio')) {
           player.poster(props.img)
         }
       }
@@ -90,7 +120,11 @@ export default {
 
     onUnmounted(() => {
       if (player) {
-        player.dispose()
+        try {
+          player.dispose()
+        } catch (err) {
+          console.error('Error disposing player:', err)
+        }
         player = null
       }
     })
@@ -100,7 +134,8 @@ export default {
     watch(() => props.img, updateSource)
 
     return {
-      videoPlayer
+      videoPlayer,
+      error
     }
   }
 }
@@ -118,14 +153,9 @@ export default {
   height: auto;
 }
 
-.video-js .vjs-big-play-button {
-  font-size: 2em;
-  line-height: 2;
-  height: 2em;
-  width: 2em;
-  border-radius: 50%;
-  background-color: rgba(43, 51, 63, 0.7);
-  border: 0.06666em solid #fff;
-  margin: -1em 0 0 -1em;
+.error-state {
+  background: #f5f5f5;
+  border-radius: 8px;
+  min-height: 300px;
 }
 </style>
