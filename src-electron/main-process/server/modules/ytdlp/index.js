@@ -48,7 +48,12 @@ export function getFfmpegPath() {
 export function getInfo(url) {
   return new Promise((resolve, reject) => {
     const ytdlp = getBinaryPath()
-    const args = ['--dump-json', '--no-playlist', url]
+    const args = [
+      '--dump-json',
+      '--no-playlist',
+      '--extractor-args', 'youtube:player_client=android',
+      url
+    ]
 
     const proc = spawn(ytdlp, args)
     let stdout = ''
@@ -100,18 +105,21 @@ export function getInfo(url) {
 export function downloadVideo(url, outputDir, title, onProgress) {
   return new Promise((resolve, reject) => {
     const ytdlp = getBinaryPath()
-    const outputPath = path.join(outputDir, `${title}.mp4`)
+    // Use %(ext)s template for proper handling of merged downloads
+    const outputTemplate = path.join(outputDir, `${title}.%(ext)s`)
+    const finalOutputPath = path.join(outputDir, `${title}.mp4`)
     const thumbPath = path.join(outputDir, `${title}.jpg`)
 
     const args = [
-      '-f', 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
+      '-f', 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/bestvideo+bestaudio/best/18',
       '--merge-output-format', 'mp4',
-      '-o', outputPath,
+      '-o', outputTemplate,
       '--write-thumbnail',
       '--convert-thumbnails', 'jpg',
       '--no-playlist',
       '--newline', // Progress on new lines for easier parsing
       '--ffmpeg-location', getFfmpegPath(),
+      '--extractor-args', 'youtube:player_client=android',
       url
     ]
 
@@ -143,7 +151,7 @@ export function downloadVideo(url, outputDir, title, onProgress) {
             break
           }
         }
-        resolve(outputPath)
+        resolve(finalOutputPath)
       } else {
         reject(new Error(parseError(stderr) || `Download failed with code ${code}`))
       }
@@ -178,6 +186,8 @@ export function downloadAudio(url, outputDir, title, onProgress) {
       '--no-playlist',
       '--newline',
       '--ffmpeg-location', getFfmpegPath(),
+      '--extractor-args', 'youtube:player_client=android',
+      '-f', 'bestaudio/best/18',
       url
     ]
 
@@ -235,6 +245,11 @@ function parseProgress(line) {
  * @returns {string|null} User-friendly error message
  */
 function parseError(stderr) {
+  // Log full stderr for debugging
+  if (stderr) {
+    console.error('[yt-dlp stderr]:', stderr)
+  }
+
   if (stderr.includes('Video unavailable')) {
     return 'This video is private or has been deleted'
   }
@@ -249,6 +264,13 @@ function parseError(stderr) {
   }
   if (stderr.includes('Unable to extract')) {
     return 'Unable to extract video information'
+  }
+  if (stderr.includes('ffmpeg')) {
+    return `FFmpeg error: ${stderr.trim()}`
+  }
+  // Return raw stderr if we couldn't parse it
+  if (stderr.trim()) {
+    return stderr.trim().split('\n').pop() // Return last line of stderr
   }
   return null
 }
