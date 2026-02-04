@@ -7,8 +7,6 @@ on:
 
 permissions:
   contents: write
-  pages: write
-  id-token: write
 
 jobs:
   release-mac:
@@ -43,15 +41,6 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm run publish
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: mac-release
-          path: |
-            dist/electron/Packager/*.dmg
-            dist/electron/Packager/*.zip
-          if-no-files-found: ignore
-
   release-linux:
     runs-on: ubuntu-latest
     steps:
@@ -84,15 +73,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm run publish
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: linux-release
-          path: |
-            dist/electron/Packager/*.AppImage
-            dist/electron/Packager/*.deb
-          if-no-files-found: ignore
 
   release-windows:
     runs-on: windows-latest
@@ -128,177 +108,27 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm run publish
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-release
-          path: |
-            dist/electron/Packager/*.exe
-          if-no-files-found: ignore
-
-  deploy-pages:
+  update-docs:
     needs: [release-mac, release-linux, release-windows]
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Get version
         id: version
         run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
 
-      - name: Create download page
+      - name: Update docs/index.html from template
         run: |
-          mkdir -p public
-          cat > public/index.html << 'EOF'
-          <!DOCTYPE html>
-          <html lang="en">
-          <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>QTube - Download</title>
-            <style>
-              * { margin: 0; padding: 0; box-sizing: border-box; }
-              body {
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-                min-height: 100vh;
-                color: #fff;
-                padding: 2rem;
-              }
-              .container {
-                max-width: 900px;
-                margin: 0 auto;
-              }
-              header {
-                text-align: center;
-                margin-bottom: 3rem;
-              }
-              h1 {
-                font-size: 3rem;
-                margin-bottom: 0.5rem;
-                background: linear-gradient(90deg, #e94560, #0f3460);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-              }
-              .version {
-                color: #888;
-                font-size: 1.1rem;
-              }
-              .description {
-                color: #aaa;
-                margin-top: 1rem;
-                font-size: 1.1rem;
-              }
-              .downloads {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-                gap: 1.5rem;
-                margin-top: 2rem;
-              }
-              .download-card {
-                background: rgba(255, 255, 255, 0.05);
-                border-radius: 16px;
-                padding: 2rem;
-                text-align: center;
-                transition: transform 0.2s, background 0.2s;
-                border: 1px solid rgba(255, 255, 255, 0.1);
-              }
-              .download-card:hover {
-                transform: translateY(-5px);
-                background: rgba(255, 255, 255, 0.08);
-              }
-              .download-card h3 {
-                font-size: 1.5rem;
-                margin-bottom: 0.5rem;
-              }
-              .download-card .icon {
-                font-size: 3rem;
-                margin-bottom: 1rem;
-              }
-              .download-card .format {
-                color: #888;
-                font-size: 0.9rem;
-                margin-bottom: 1.5rem;
-              }
-              .download-btn {
-                display: inline-block;
-                background: linear-gradient(90deg, #e94560, #0f3460);
-                color: #fff;
-                text-decoration: none;
-                padding: 0.8rem 2rem;
-                border-radius: 8px;
-                font-weight: 600;
-                transition: opacity 0.2s;
-              }
-              .download-btn:hover {
-                opacity: 0.9;
-              }
-              footer {
-                text-align: center;
-                margin-top: 4rem;
-                color: #666;
-              }
-              footer a {
-                color: #e94560;
-                text-decoration: none;
-              }
-            </style>
-          </head>
-          <body>
-            <div class="container">
-              <header>
-                <h1>QTube</h1>
-                <p class="version">Version VERSION_PLACEHOLDER</p>
-                <p class="description">Download videos from YouTube with ease</p>
-              </header>
+          sed 's/{{VERSION}}/${{ steps.version.outputs.version }}/g' docs/index.template.html > docs/index.html
 
-              <div class="downloads">
-                <div class="download-card">
-                  <div class="icon">🍎</div>
-                  <h3>macOS</h3>
-                  <p class="format">DMG Installer</p>
-                  <a href="https://github.com/iagocavalcante/qtube/releases/latest/download/QTube-VERSION_PLACEHOLDER.dmg" class="download-btn">Download</a>
-                </div>
-
-                <div class="download-card">
-                  <div class="icon">🪟</div>
-                  <h3>Windows</h3>
-                  <p class="format">EXE Installer</p>
-                  <a href="https://github.com/iagocavalcante/qtube/releases/latest/download/QTube-Setup-VERSION_PLACEHOLDER.exe" class="download-btn">Download</a>
-                </div>
-
-                <div class="download-card">
-                  <div class="icon">🐧</div>
-                  <h3>Linux</h3>
-                  <p class="format">AppImage</p>
-                  <a href="https://github.com/iagocavalcante/qtube/releases/latest/download/QTube-VERSION_PLACEHOLDER.AppImage" class="download-btn">Download</a>
-                </div>
-              </div>
-
-              <footer>
-                <p>
-                  <a href="https://github.com/iagocavalcante/qtube">GitHub Repository</a> ·
-                  <a href="https://github.com/iagocavalcante/qtube/releases">All Releases</a>
-                </p>
-              </footer>
-            </div>
-          </body>
-          </html>
-          EOF
-          sed -i "s/VERSION_PLACEHOLDER/${{ steps.version.outputs.version }}/g" public/index.html
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: public
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/index.html
+          git diff --staged --quiet || git commit -m "docs: update download links to v${{ steps.version.outputs.version }}"
+          git push
