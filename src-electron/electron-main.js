@@ -89,7 +89,53 @@ function createWindow () {
   })
 }
 
-app.whenReady().then(createWindow)
+app.whenReady().then(() => {
+  createWindow()
+
+  // Check for updates after app is ready (only in production)
+  if (process.env.PROD) {
+    // Wait a bit for the window to be ready
+    setTimeout(() => {
+      checkForUpdates()
+    }, 3000)
+  }
+})
+
+// Auto-updater setup
+function checkForUpdates() {
+  log.info('Checking for updates...')
+
+  autoUpdater.on('checking-for-update', () => {
+    log.info('Checking for update...')
+  })
+
+  autoUpdater.on('update-available', (info) => {
+    log.info('Update available:', info.version)
+  })
+
+  autoUpdater.on('update-not-available', (info) => {
+    log.info('Update not available, current version is latest')
+  })
+
+  autoUpdater.on('error', (err) => {
+    log.error('Error in auto-updater:', err)
+  })
+
+  autoUpdater.on('download-progress', (progressObj) => {
+    log.info(`Download speed: ${progressObj.bytesPerSecond} - Downloaded ${progressObj.percent}%`)
+  })
+
+  autoUpdater.on('update-downloaded', (info) => {
+    log.info('Update downloaded:', info.version)
+    // Notify the renderer that an update is ready
+    if (mainWindow) {
+      mainWindow.webContents.send('updateReady', info)
+    }
+  })
+
+  // Check for updates
+  autoUpdater.checkForUpdatesAndNotify()
+}
 
 app.on('window-all-closed', () => {
   if (platform !== 'darwin') {

@@ -77,8 +77,13 @@ export default {
     },
     checkUpdates () {
       if (window.electronAPI) {
-        window.electronAPI.onUpdateReady(() => {
+        window.electronAPI.onUpdateReady((info) => {
           this.updatesAvailabe = '1'
+          this.$q.notify({
+            type: 'info',
+            message: `Update v${info?.version || 'new'} is ready! Click Updates to install.`,
+            timeout: 10000
+          })
         })
       }
     },

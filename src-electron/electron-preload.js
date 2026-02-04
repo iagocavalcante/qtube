@@ -43,7 +43,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   createFileDatabase: () => ipcRenderer.invoke('createFileDatabase'),
   getFolderApp: () => ipcRenderer.invoke('getFolderApp'),
   
-  // Event listeners
-  onUpdateReady: (callback) => ipcRenderer.on('updateReady', callback),
+  // Event listeners for auto-update
+  onUpdateReady: (callback) => ipcRenderer.on('updateReady', (event, info) => callback(info)),
   removeUpdateListener: () => ipcRenderer.removeAllListeners('updateReady')
 })
