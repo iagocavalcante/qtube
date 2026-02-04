@@ -48,7 +48,19 @@ function createWindow () {
     }
   })
 
+  // Log the URL being loaded for debugging
+  log.info('Loading URL:', process.env.APP_URL)
+
   mainWindow.loadURL(process.env.APP_URL)
+
+  // Handle load failures
+  mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
+    log.error('Failed to load:', errorCode, errorDescription)
+  })
+
+  mainWindow.webContents.on('did-finish-load', () => {
+    log.info('Page loaded successfully')
+  })
 
   // Start the Express server for downloads
   server.listen(defaultPath)
