@@ -1,4 +1,4 @@
-import { app, BrowserWindow, nativeTheme, ipcMain } from 'electron'
+import { app, BrowserWindow, nativeTheme, ipcMain, shell } from 'electron'
 import path from 'path'
 import os from 'os'
 import fs from 'fs'
@@ -48,6 +48,8 @@ function createWindow () {
     frame: process.env.PROD ? false : true,
     webPreferences: {
       contextIsolation: true,
+      // Allow loading local video/audio files
+      webSecurity: false,
       // More info: https://v2.quasar.dev/quasar-cli-vite/developing-electron-apps/electron-preload-script
       preload: path.resolve(__dirname, process.env.QUASAR_ELECTRON_PRELOAD || 'preload/electron-preload.cjs')
     }
@@ -212,6 +214,16 @@ ipcMain.handle('createFileDatabase', () => {
 
 ipcMain.handle('getFolderApp', () => {
   return defaultPath
+})
+
+ipcMain.handle('openFolder', async (event, folderPath) => {
+  try {
+    await shell.openPath(folderPath)
+    return { success: true }
+  } catch (err) {
+    log.error('Failed to open folder:', err)
+    return { success: false, error: err.message }
+  }
 })
 
 // Download operations via IPC

@@ -48,6 +48,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   downloadAudio: (url) => ipcRenderer.invoke('downloadAudio', url),
   getVideoInfo: (url) => ipcRenderer.invoke('getVideoInfo', url),
   getDownloads: () => ipcRenderer.invoke('getDownloads'),
+  openFolder: (folderPath) => ipcRenderer.invoke('openFolder', folderPath),
 
   // Download progress events
   onDownloadProgress: (callback) => {
