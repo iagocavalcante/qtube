@@ -5,21 +5,58 @@ import path from 'path'
 import cors from 'cors'
 import { manipulateFiles, ytdlp } from './modules/index.js'
 
-function insertToDatabase(__statics, ytdown, type) {
-  fs.readFile(path.join(__statics, 'database/ytdown.json'), function (err, content) {
-    if (err) {
-      console.log(err)
-      return
+function getDefaultDatabase() {
+  return { videos: [], musics: [] }
+}
+
+function ensureDatabaseExists(__statics) {
+  const dbPath = path.join(__statics, 'database/ytdown.json')
+  const dbDir = path.join(__statics, 'database')
+
+  // Create directory if it doesn't exist
+  if (!fs.existsSync(dbDir)) {
+    fs.mkdirSync(dbDir, { recursive: true })
+  }
+
+  // Create file if it doesn't exist
+  if (!fs.existsSync(dbPath)) {
+    fs.writeFileSync(dbPath, JSON.stringify(getDefaultDatabase()))
+  }
+
+  return dbPath
+}
+
+function readDatabase(__statics) {
+  const dbPath = ensureDatabaseExists(__statics)
+  try {
+    const content = fs.readFileSync(dbPath, 'utf-8')
+    if (!content || content.trim() === '') {
+      return getDefaultDatabase()
     }
-    const yt = JSON.parse(content)
-    if (type === 'mp3')
-      yt.musics.push(ytdown)
-    else
-      yt.videos.push(ytdown)
-    fs.writeFile(path.join(__statics, 'database/ytdown.json'), JSON.stringify(yt), function (err) {
-      if (err) console.log(err)
-    })
-  })
+    return JSON.parse(content)
+  } catch (err) {
+    console.error('Error reading database:', err)
+    return getDefaultDatabase()
+  }
+}
+
+function writeDatabase(__statics, data) {
+  const dbPath = ensureDatabaseExists(__statics)
+  try {
+    fs.writeFileSync(dbPath, JSON.stringify(data, null, 2))
+  } catch (err) {
+    console.error('Error writing database:', err)
+  }
+}
+
+function insertToDatabase(__statics, ytdown, type) {
+  const yt = readDatabase(__statics)
+  if (type === 'mp3') {
+    yt.musics.push(ytdown)
+  } else {
+    yt.videos.push(ytdown)
+  }
+  writeDatabase(__statics, yt)
 }
 
 export const listen = (__statics) => {
@@ -110,12 +147,8 @@ export const listen = (__statics) => {
   })
 
   app.get('/api/infos', (req, res) => {
-    fs.readFile(path.join(__statics, 'database/ytdown.json'), function (err, content) {
-      if (err) console.log(err)
-      // if (err) res.status(500).json({ error: 'impossible insert data' })
-      const yt = JSON.parse(content)
-      res.status(200).json(yt)
-    })
+    const yt = readDatabase(__statics)
+    res.status(200).json(yt)
   })
 
   app.listen(52847)
