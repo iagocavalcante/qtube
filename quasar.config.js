@@ -59,7 +59,7 @@ export default configure(function (ctx) {
         node: 'node16'
       },
 
-      vueRouterMode: 'history', // available values: 'hash', 'history'
+      vueRouterMode: 'hash', // 'hash' required for Electron (file:// protocol doesn't support history mode)
       // vueRouterBase,
       // vueDevtools,
       // vueOptionsAPI: false,

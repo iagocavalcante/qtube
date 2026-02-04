@@ -97,47 +97,47 @@ ipcMain.on('quitAndInstall', () => {
   autoUpdater.quitAndInstall()
 })
 
-// File system operations
-ipcMain.on('createYtDownFolder', (event) => {
+// File system operations (using handle for invoke calls)
+ipcMain.handle('createYtDownFolder', () => {
   if (!fs.existsSync(defaultPath)) {
     fs.mkdirSync(defaultPath, { recursive: true })
   }
-  event.returnValue = defaultPath
+  return defaultPath
 })
 
-ipcMain.on('createVideosFolder', (event) => {
+ipcMain.handle('createVideosFolder', () => {
   const videosPath = `${defaultPath}/videos`.replace(/\\/g, '/')
   if (!fs.existsSync(videosPath)) {
     fs.mkdirSync(videosPath, { recursive: true })
   }
-  event.returnValue = videosPath
+  return videosPath
 })
 
-ipcMain.on('createMusicFolder', (event) => {
+ipcMain.handle('createMusicFolder', () => {
   const musicsPath = `${defaultPath}/musics`.replace(/\\/g, '/')
   if (!fs.existsSync(musicsPath)) {
     fs.mkdirSync(musicsPath, { recursive: true })
   }
-  event.returnValue = musicsPath
+  return musicsPath
 })
 
-ipcMain.on('createDatabaseFolder', (event) => {
+ipcMain.handle('createDatabaseFolder', () => {
   const databasePath = `${defaultPath}/database`.replace(/\\/g, '/')
   if (!fs.existsSync(databasePath)) {
     fs.mkdirSync(databasePath, { recursive: true })
   }
-  event.returnValue = databasePath
+  return databasePath
 })
 
-ipcMain.on('createFileDatabase', (event) => {
+ipcMain.handle('createFileDatabase', () => {
   const databasePath = `${defaultPath}/database`.replace(/\\/g, '/')
   if (!fs.existsSync(`${databasePath}/ytdown.json`)) {
     const yt = { videos: [], musics: [] }
     fs.writeFileSync(`${databasePath}/ytdown.json`, JSON.stringify(yt))
   }
-  event.returnValue = `${databasePath}/ytdown.json`
+  return `${databasePath}/ytdown.json`
 })
 
-ipcMain.on('getFolderApp', (event) => {
-  event.returnValue = defaultPath
+ipcMain.handle('getFolderApp', () => {
+  return defaultPath
 })
