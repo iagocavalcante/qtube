@@ -1,14 +1,14 @@
-import { app, BrowserWindow, nativeTheme, ipcMain, shell } from 'electron'
-import path from 'path'
-import os from 'os'
-import fs from 'fs'
-import { fileURLToPath } from 'url'
-import pkg from 'electron-updater'
-const { autoUpdater } = pkg
-import log from 'electron-log'
-import * as ytdlp from './main-process/server/modules/ytdlp/index.js'
-import * as database from './main-process/modules/database.js'
-import { createDir } from './main-process/server/modules/manipulate-files/index.js'
+import { app, BrowserWindow, nativeTheme, ipcMain, shell } from "electron";
+import path from "path";
+import os from "os";
+import fs from "fs";
+import { fileURLToPath } from "url";
+import pkg from "electron-updater";
+const { autoUpdater } = pkg;
+import log from "electron-log";
+import * as ytdlp from "./main-process/server/modules/ytdlp/index.js";
+import * as database from "./main-process/modules/database.js";
+import { createDir } from "./main-process/server/modules/manipulate-files/index.js";
 
 // ES modules fix for __dirname
 const __filename = fileURLToPath(import.meta.url)
@@ -136,9 +136,9 @@ function checkForUpdates() {
     log.info('Update downloaded:', info.version)
     // Notify the renderer that an update is ready
     if (mainWindow) {
-      mainWindow.webContents.send('updateReady', info)
+      mainWindow.webContents.send("updateReady", info);
     }
-  })
+  });
 
   // Check for updates
   autoUpdater.checkForUpdatesAndNotify()
@@ -236,21 +236,49 @@ ipcMain.handle('downloadVideo', async (event, url) => {
 
     // Send initial progress
     if (mainWindow) {
-      mainWindow.webContents.send('downloadProgress', { percent: 0, stage: 'starting', title })
+      mainWindow.webContents.send("downloadProgress", {
+        percent: 0,
+        stage: "starting",
+        title,
+      });
     }
 
     await ytdlp.downloadVideo(url, outputDir, title, (progress) => {
-      log.info(`Download progress: ${progress.percent}%`)
+      log.info(`Download progress: ${progress.percent}%`);
       if (mainWindow) {
-        mainWindow.webContents.send('downloadProgress', {
+        mainWindow.webContents.send("downloadProgress", {
           percent: progress.percent,
-          stage: 'downloading',
+          stage: "downloading",
           speed: progress.speed,
           eta: progress.eta,
-          title
-        })
+          title,
+        });
       }
-    })
+    });
+
+    const videoPath = path.join(outputDir, `${title}.mp4`);
+    const thumbnail = path.join(outputDir, `${title}.jpg`);
+
+    if (!fs.existsSync(videoPath)) {
+      throw new Error("Download failed: Video file not created");
+    }
+
+    const videoStats = fs.statSync(videoPath);
+    if (videoStats.size === 0) {
+      throw new Error("Download failed: video file is empty");
+    }
+
+    if (videoStats.size < 100 * 1024) {
+      throw new Error(
+        "Download failed: Video file too small (possibly corrupted)",
+      );
+    }
+
+    log.info(`Video validated: ${videoPath} (${videoStats.size} bytes)`);
+
+    if (!fs.existsSync(thumbnailPath)) {
+      log.warn("Thumbnail not found, but continuing");
+    }
 
     // Insert into database
     const record = {
@@ -263,16 +291,24 @@ ipcMain.handle('downloadVideo', async (event, url) => {
 
     // Send completion
     if (mainWindow) {
-      mainWindow.webContents.send('downloadProgress', { percent: 100, stage: 'complete', title })
+      mainWindow.webContents.send("downloadProgress", {
+        percent: 100,
+        stage: "complete",
+        title,
+      });
     }
 
     return { success: true, video: record }
   } catch (err) {
-    log.error('Download video error:', err)
+    log.error("Download video error:", err);
     if (mainWindow) {
-      mainWindow.webContents.send('downloadProgress', { percent: 0, stage: 'error', error: err.message })
+      mainWindow.webContents.send("downloadProgress", {
+        percent: 0,
+        stage: "error",
+        error: err.message,
+      });
     }
-    throw err
+    throw err;
   }
 })
 
@@ -285,21 +321,54 @@ ipcMain.handle('downloadAudio', async (event, url) => {
 
     // Send initial progress
     if (mainWindow) {
-      mainWindow.webContents.send('downloadProgress', { percent: 0, stage: 'starting', title })
+      mainWindow.webContents.send("downloadProgress", {
+        percent: 0,
+        stage: "starting",
+        title,
+      });
     }
 
-    const musicPath = await ytdlp.downloadAudio(url, outputDir, title, (progress) => {
-      log.info(`Download progress: ${progress.percent}%`)
-      if (mainWindow) {
-        mainWindow.webContents.send('downloadProgress', {
-          percent: progress.percent,
-          stage: 'downloading',
-          speed: progress.speed,
-          eta: progress.eta,
-          title
-        })
-      }
-    })
+    const musicPath = await ytdlp.downloadAudio(
+      url,
+      outputDir,
+      title,
+      (progress) => {
+        log.info(`Download progress: ${progress.percent}%`);
+        if (mainWindow) {
+          mainWindow.webContents.send("downloadProgress", {
+            percent: progress.percent,
+            stage: "downloading",
+            speed: progress.speed,
+            eta: progress.eta,
+            title,
+          });
+        }
+      },
+    );
+
+    const audioPath = path.join(outputDir, `${title}.mp3`);
+    const thumbnailPath = path.join(outputDir, `${title}.jpg`);
+
+    if (!fs.existsSync(audioPath)) {
+      throw new Error("Download failed: Audio file not created");
+    }
+
+    const audioStats = fs.statSync(audioPath);
+    if (audioStats.size === 0) {
+      throw new Error("Download failed: Audio file is empty");
+    }
+
+    if (audioStats.size < 50 * 1024) {
+      throw new Error(
+        "Download failed: Audio file too small (possibly corrupted)",
+      );
+    }
+
+    log.info(`Audio validated: ${audioPath} (${audioStats.size} bytes)`);
+
+    if (!fs.existsSync(thumbnailPath)) {
+      log.warn("Thumbnail not found, but continuing");
+    }
 
     // Insert into database
     const record = {
@@ -312,16 +381,24 @@ ipcMain.handle('downloadAudio', async (event, url) => {
 
     // Send completion
     if (mainWindow) {
-      mainWindow.webContents.send('downloadProgress', { percent: 100, stage: 'complete', title })
+      mainWindow.webContents.send("downloadProgress", {
+        percent: 100,
+        stage: "complete",
+        title,
+      });
     }
 
     return { success: true, music: record, path: musicPath }
   } catch (err) {
-    log.error('Download audio error:', err)
+    log.error("Download audio error:", err);
     if (mainWindow) {
-      mainWindow.webContents.send('downloadProgress', { percent: 0, stage: 'error', error: err.message })
+      mainWindow.webContents.send("downloadProgress", {
+        percent: 0,
+        stage: "error",
+        error: err.message,
+      });
     }
-    throw err
+    throw err;
   }
 })
 
