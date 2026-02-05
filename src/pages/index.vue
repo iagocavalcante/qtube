@@ -7,9 +7,29 @@
       required
       outlined
       class="full-width q-mb-md"
+      :error="showValidationError"
+      :error-message="validationMessage"
+      @update:model-value="onUrlChange"
     >
       <template v-slot:prepend>
         <q-icon name="ondemand_video" color="purple" />
+      </template>
+      <template v-slot:append>
+        <q-icon
+          v-if="youtubeUrl && isValidUrl"
+          name="check_circle"
+          color="positive"
+        />
+        <q-icon
+          v-else-if="youtubeUrl && !isValidUrl"
+          name="error"
+          color="negative"
+        />
+      </template>
+      <template v-slot:hint>
+        <span class="text-grey-6">
+          Supports: youtube.com, youtu.be, shorts, and playlists
+        </span>
       </template>
     </q-input>
     <q-linear-progress
@@ -34,7 +54,7 @@
         size="lg"
         label="Download"
         :loading="isDownloading"
-        :disable="!youtubeUrl || isDownloading"
+        :disable="!isValidUrl || isDownloading"
         @click="download()"
       >
         <template v-slot:loading>
@@ -72,6 +92,18 @@
 </style>
 
 <script>
+// YouTube URL patterns
+const YOUTUBE_PATTERNS = [
+  /^(https?:\/\/)?(www\.)?youtube\.com\/watch\?v=[\w-]+/,      // youtube.com/watch?v=xxx
+  /^(https?:\/\/)?(www\.)?youtube\.com\/shorts\/[\w-]+/,       // youtube.com/shorts/xxx
+  /^(https?:\/\/)?(www\.)?youtube\.com\/playlist\?list=[\w-]+/, // youtube.com/playlist?list=xxx
+  /^(https?:\/\/)?(www\.)?youtube\.com\/embed\/[\w-]+/,        // youtube.com/embed/xxx
+  /^(https?:\/\/)?(www\.)?youtube\.com\/v\/[\w-]+/,            // youtube.com/v/xxx
+  /^(https?:\/\/)?(www\.)?youtu\.be\/[\w-]+/,                  // youtu.be/xxx
+  /^(https?:\/\/)?(www\.)?youtube\.com\/live\/[\w-]+/,         // youtube.com/live/xxx
+  /^(https?:\/\/)?(music\.)?youtube\.com\/watch\?v=[\w-]+/     // music.youtube.com/watch?v=xxx
+]
+
 export default {
   name: 'IndexPage',
   data () {
@@ -80,6 +112,7 @@ export default {
       isDownloading: false,
       downloadPercent: 0,
       downloadStatus: '',
+      hasInteracted: false,
       options: [
         {
           type: 'mp3',
@@ -96,6 +129,30 @@ export default {
       }
     }
   },
+  computed: {
+    isValidUrl () {
+      if (!this.youtubeUrl || !this.youtubeUrl.trim()) {
+        return false
+      }
+      const url = this.youtubeUrl.trim()
+      return YOUTUBE_PATTERNS.some(pattern => pattern.test(url))
+    },
+    showValidationError () {
+      return this.hasInteracted && this.youtubeUrl && !this.isValidUrl
+    },
+    validationMessage () {
+      if (!this.youtubeUrl) {
+        return ''
+      }
+      if (!this.youtubeUrl.includes('youtube') && !this.youtubeUrl.includes('youtu.be')) {
+        return 'Please enter a YouTube URL'
+      }
+      if (!this.isValidUrl) {
+        return 'Invalid YouTube URL format'
+      }
+      return ''
+    }
+  },
   mounted () {
     this.setupProgressListener()
   },
@@ -103,6 +160,9 @@ export default {
     this.removeProgressListener()
   },
   methods: {
+    onUrlChange () {
+      this.hasInteracted = true
+    },
     setupProgressListener () {
       if (window.electronAPI) {
         window.electronAPI.onDownloadProgress((progress) => {
@@ -125,7 +185,7 @@ export default {
       }
     },
     download () {
-      if (!this.youtubeUrl || this.isDownloading) {
+      if (!this.isValidUrl || this.isDownloading) {
         return
       }
       this.selectedType.download()
@@ -144,7 +204,7 @@ export default {
       this.downloadStatus = 'Starting download...'
 
       try {
-        const result = await window.electronAPI.downloadAudio(this.youtubeUrl)
+        const result = await window.electronAPI.downloadAudio(this.youtubeUrl.trim())
         console.log('MP3 download completed:', result)
         this.$q.notify({
           type: 'positive',
@@ -174,7 +234,7 @@ export default {
       this.downloadStatus = 'Starting download...'
 
       try {
-        const result = await window.electronAPI.downloadVideo(this.youtubeUrl)
+        const result = await window.electronAPI.downloadVideo(this.youtubeUrl.trim())
         console.log('Video download completed:', result)
         this.$q.notify({
           type: 'positive',
@@ -199,6 +259,7 @@ export default {
       this.youtubeUrl = ''
       this.downloadPercent = 0
       this.downloadStatus = ''
+      this.hasInteracted = false
     }
   }
 }
