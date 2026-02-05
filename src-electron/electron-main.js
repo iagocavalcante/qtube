@@ -145,9 +145,8 @@ function checkForUpdates() {
   autoUpdater.on("update-downloaded", (info) => {
     log.info("Update downloaded:", info.version);
     // Notify the renderer that an update is ready
-    if (mainWindow) {
-      mainWindow.webContents.send("updateReady", info);
-    }
+
+    sendToRenderer(mainWindow, "updateReady", info);
   });
 
   // Check for updates
@@ -245,29 +244,26 @@ ipcMain.handle("downloadVideo", async (event, url) => {
     createDir(outputDir);
 
     // Send initial progress
-    if (mainWindow) {
-      mainWindow.webContents.send("downloadProgress", {
-        percent: 0,
-        stage: "starting",
-        title,
-      });
-    }
+    sendToRenderer(mainWindow, "downloadProgress", {
+      percent: 0,
+      stage: "starting",
+      title,
+    });
 
     await ytdlp.downloadVideo(url, outputDir, title, (progress) => {
       log.info(`Download progress: ${progress.percent}%`);
-      if (mainWindow) {
-        mainWindow.webContents.send("downloadProgress", {
-          percent: progress.percent,
-          stage: "downloading",
-          speed: progress.speed,
-          eta: progress.eta,
-          title,
-        });
-      }
+
+      sendToRenderer(mainWindow, "downloadProgress", {
+        percent: progress.percent,
+        stage: "downloading",
+        speed: progress.speed,
+        eta: progress.eta,
+        title,
+      });
     });
 
     const videoPath = path.join(outputDir, `${title}.mp4`);
-    const thumbnail = path.join(outputDir, `${title}.jpg`);
+    const thumbnailPath = path.join(outputDir, `${title}.jpg`);
 
     if (!fs.existsSync(videoPath)) {
       throw new Error("Download failed: Video file not created");
@@ -300,24 +296,20 @@ ipcMain.handle("downloadVideo", async (event, url) => {
     database.insertToDatabase(defaultPath, record, "video");
 
     // Send completion
-    if (mainWindow) {
-      mainWindow.webContents.send("downloadProgress", {
-        percent: 100,
-        stage: "complete",
-        title,
-      });
-    }
+    sendToRenderer(mainWindow, "downloadProgress", {
+      percent: 100,
+      stage: "complete",
+      title,
+    });
 
     return { success: true, video: record };
   } catch (err) {
     log.error("Download video error:", err);
-    if (mainWindow) {
-      mainWindow.webContents.send("downloadProgress", {
-        percent: 0,
-        stage: "error",
-        error: err.message,
-      });
-    }
+    sendToRenderer(mainWindow, "downloadProgress", {
+      percent: 0,
+      stage: "error",
+      error: err.message,
+    });
     throw err;
   }
 });
@@ -330,13 +322,11 @@ ipcMain.handle("downloadAudio", async (event, url) => {
     createDir(outputDir);
 
     // Send initial progress
-    if (mainWindow) {
-      mainWindow.webContents.send("downloadProgress", {
-        percent: 0,
-        stage: "starting",
-        title,
-      });
-    }
+    sendToRenderer(mainWindow, "downloadProgres", {
+      percent: 0,
+      stage: "starting",
+      title,
+    });
 
     const musicPath = await ytdlp.downloadAudio(
       url,
@@ -344,15 +334,14 @@ ipcMain.handle("downloadAudio", async (event, url) => {
       title,
       (progress) => {
         log.info(`Download progress: ${progress.percent}%`);
-        if (mainWindow) {
-          mainWindow.webContents.send("downloadProgress", {
-            percent: progress.percent,
-            stage: "downloading",
-            speed: progress.speed,
-            eta: progress.eta,
-            title,
-          });
-        }
+
+        sendToRenderer(mainWindow, "downloadProgress", {
+          percent: progress.percent,
+          stage: "downloading",
+          speed: progress.speed,
+          eta: progress.eta,
+          title,
+        });
       },
     );
 
@@ -390,24 +379,20 @@ ipcMain.handle("downloadAudio", async (event, url) => {
     database.insertToDatabase(defaultPath, record, "mp3");
 
     // Send completion
-    if (mainWindow) {
-      mainWindow.webContents.send("downloadProgress", {
-        percent: 100,
-        stage: "complete",
-        title,
-      });
-    }
+    sendToRenderer(mainWindow, "downloadProgress", {
+      percent: 100,
+      stage: "complete",
+      title,
+    });
 
     return { success: true, music: record, path: musicPath };
   } catch (err) {
     log.error("Download audio error:", err);
-    if (mainWindow) {
-      mainWindow.webContents.send("downloadProgress", {
-        percent: 0,
-        stage: "error",
-        error: err.message,
-      });
-    }
+    sendToRenderer(mainWindow, "downloadProgress", {
+      percent: 0,
+      stage: "error",
+      error: err.message,
+    });
     throw err;
   }
 });
