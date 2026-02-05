@@ -9,40 +9,41 @@ import log from "electron-log";
 import * as ytdlp from "./main-process/server/modules/ytdlp/index.js";
 import * as database from "./main-process/modules/database.js";
 import { createDir } from "./main-process/server/modules/manipulate-files/index.js";
-import { sendToRenderer } from "./_helper/sendToRenderer.helper.js";
 
 // ES modules fix for __dirname
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // needed in case process is undefined under Linux
-const platform = process.platform || os.platform()
+const platform = process.platform || os.platform();
 
 // Disable Autofill to suppress DevTools console errors
-app.commandLine.appendSwitch('disable-features', 'AutofillServerCommunication')
+app.commandLine.appendSwitch("disable-features", "AutofillServerCommunication");
 
 // Default download path
-const defaultPath = `${app.getPath('downloads')}/Ytdown/`.replace(/\\/g, '/')
+const defaultPath = `${app.getPath("downloads")}/Ytdown/`.replace(/\\/g, "/");
 
 // configure logging
-autoUpdater.logger = log
-autoUpdater.logger.transports.file.level = 'info'
-log.info('App starting...')
+autoUpdater.logger = log;
+autoUpdater.logger.transports.file.level = "info";
+log.info("App starting...");
 
 try {
-  if (platform === 'win32' && nativeTheme.shouldUseDarkColors === true) {
-    require('fs').unlinkSync(path.join(app.getPath('userData'), 'DevTools Extensions'))
+  if (platform === "win32" && nativeTheme.shouldUseDarkColors === true) {
+    require("fs").unlinkSync(
+      path.join(app.getPath("userData"), "DevTools Extensions"),
+    );
   }
-} catch (_) { }
+} catch (_) {}
 
-let mainWindow
+let mainWindow;
 
-function createWindow () {
+function createWindow() {
   /**
    * Initial window options
    */
   mainWindow = new BrowserWindow({
-    icon: path.resolve(__dirname, 'icons/icon.png'), // tray icon
+    icon: path.resolve(__dirname, "icons/icon.png"), // tray icon
     width: 1000,
     height: 600,
     useContentSize: true,
@@ -52,187 +53,195 @@ function createWindow () {
       // Allow loading local video/audio files
       webSecurity: false,
       // More info: https://v2.quasar.dev/quasar-cli-vite/developing-electron-apps/electron-preload-script
-      preload: path.resolve(__dirname, process.env.QUASAR_ELECTRON_PRELOAD || 'preload/electron-preload.cjs')
-    }
-  })
+      preload: path.resolve(
+        __dirname,
+        process.env.QUASAR_ELECTRON_PRELOAD || "preload/electron-preload.cjs",
+      ),
+    },
+  });
 
   // Determine the URL to load
-  let appUrl = process.env.APP_URL
+  let appUrl = process.env.APP_URL;
   if (!appUrl) {
     // Production: load from built files
-    const indexPath = path.resolve(__dirname, 'index.html')
-    appUrl = `file://${indexPath}`
+    const indexPath = path.resolve(__dirname, "index.html");
+    appUrl = `file://${indexPath}`;
   }
 
   // Log the URL being loaded for debugging
-  log.info('Loading URL:', appUrl)
-  log.info('__dirname:', __dirname)
+  log.info("Loading URL:", appUrl);
+  log.info("__dirname:", __dirname);
 
-  mainWindow.loadURL(appUrl)
+  mainWindow.loadURL(appUrl);
 
   // Handle load failures
-  mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
-    log.error('Failed to load:', errorCode, errorDescription)
-  })
+  mainWindow.webContents.on(
+    "did-fail-load",
+    (event, errorCode, errorDescription) => {
+      log.error("Failed to load:", errorCode, errorDescription);
+    },
+  );
 
-  mainWindow.webContents.on('did-finish-load', () => {
-    log.info('Page loaded successfully')
-  })
+  mainWindow.webContents.on("did-finish-load", () => {
+    log.info("Page loaded successfully");
+  });
 
   // Ensure download folders exist
-  database.ensureDatabaseExists(defaultPath)
+  database.ensureDatabaseExists(defaultPath);
 
   if (process.env.DEBUGGING) {
     // if on DEV or Production with debug enabled
-    mainWindow.webContents.openDevTools()
+    mainWindow.webContents.openDevTools();
   } else {
     // we're on production; no access to devtools pls
-    mainWindow.webContents.on('devtools-opened', () => {
-      mainWindow.webContents.closeDevTools()
-    })
+    mainWindow.webContents.on("devtools-opened", () => {
+      mainWindow.webContents.closeDevTools();
+    });
   }
 
-  mainWindow.on('closed', () => {
-    mainWindow = null
-  })
+  mainWindow.on("closed", () => {
+    mainWindow = null;
+  });
 }
 
 app.whenReady().then(() => {
-  createWindow()
+  createWindow();
 
   // Check for updates after app is ready (only in production)
   if (process.env.PROD) {
     // Wait a bit for the window to be ready
     setTimeout(() => {
-      checkForUpdates()
-    }, 3000)
+      checkForUpdates();
+    }, 3000);
   }
-})
+});
 
 // Auto-updater setup
 function checkForUpdates() {
-  log.info('Checking for updates...')
+  log.info("Checking for updates...");
 
-  autoUpdater.on('checking-for-update', () => {
-    log.info('Checking for update...')
-  })
+  autoUpdater.on("checking-for-update", () => {
+    log.info("Checking for update...");
+  });
 
-  autoUpdater.on('update-available', (info) => {
-    log.info('Update available:', info.version)
-  })
+  autoUpdater.on("update-available", (info) => {
+    log.info("Update available:", info.version);
+  });
 
-  autoUpdater.on('update-not-available', (info) => {
-    log.info('Update not available, current version is latest')
-  })
+  autoUpdater.on("update-not-available", (info) => {
+    log.info("Update not available, current version is latest");
+  });
 
-  autoUpdater.on('error', (err) => {
-    log.error('Error in auto-updater:', err)
-  })
+  autoUpdater.on("error", (err) => {
+    log.error("Error in auto-updater:", err);
+  });
 
-  autoUpdater.on('download-progress', (progressObj) => {
-    log.info(`Download speed: ${progressObj.bytesPerSecond} - Downloaded ${progressObj.percent}%`)
-  })
+  autoUpdater.on("download-progress", (progressObj) => {
+    log.info(
+      `Download speed: ${progressObj.bytesPerSecond} - Downloaded ${progressObj.percent}%`,
+    );
+  });
 
-  autoUpdater.on('update-downloaded', (info) => {
-    log.info('Update downloaded:', info.version)
+  autoUpdater.on("update-downloaded", (info) => {
+    log.info("Update downloaded:", info.version);
     // Notify the renderer that an update is ready
 
     sendToRenderer(mainWindow, "updateReady", info);
   });
 
   // Check for updates
-  autoUpdater.checkForUpdatesAndNotify()
+  autoUpdater.checkForUpdatesAndNotify();
 }
 
-app.on('window-all-closed', () => {
-  if (platform !== 'darwin') {
-    app.quit()
+app.on("window-all-closed", () => {
+  if (platform !== "darwin") {
+    app.quit();
   }
-})
+});
 
-app.on('activate', () => {
+app.on("activate", () => {
   if (mainWindow === null) {
-    createWindow()
+    createWindow();
   }
-})
+});
 
 // IPC handlers
-ipcMain.on('close-app', () => {
-  app.quit()
-})
+ipcMain.on("close-app", () => {
+  app.quit();
+});
 
-ipcMain.on('minimize', () => {
+ipcMain.on("minimize", () => {
   if (mainWindow) {
-    mainWindow.minimize()
+    mainWindow.minimize();
   }
-})
+});
 
-ipcMain.on('quitAndInstall', () => {
-  autoUpdater.quitAndInstall()
-})
+ipcMain.on("quitAndInstall", () => {
+  autoUpdater.quitAndInstall();
+});
 
 // File system operations (using handle for invoke calls)
-ipcMain.handle('createYtDownFolder', () => {
+ipcMain.handle("createYtDownFolder", () => {
   if (!fs.existsSync(defaultPath)) {
-    fs.mkdirSync(defaultPath, { recursive: true })
+    fs.mkdirSync(defaultPath, { recursive: true });
   }
-  return defaultPath
-})
+  return defaultPath;
+});
 
-ipcMain.handle('createVideosFolder', () => {
-  const videosPath = `${defaultPath}/videos`.replace(/\\/g, '/')
+ipcMain.handle("createVideosFolder", () => {
+  const videosPath = `${defaultPath}/videos`.replace(/\\/g, "/");
   if (!fs.existsSync(videosPath)) {
-    fs.mkdirSync(videosPath, { recursive: true })
+    fs.mkdirSync(videosPath, { recursive: true });
   }
-  return videosPath
-})
+  return videosPath;
+});
 
-ipcMain.handle('createMusicFolder', () => {
-  const musicsPath = `${defaultPath}/musics`.replace(/\\/g, '/')
+ipcMain.handle("createMusicFolder", () => {
+  const musicsPath = `${defaultPath}/musics`.replace(/\\/g, "/");
   if (!fs.existsSync(musicsPath)) {
-    fs.mkdirSync(musicsPath, { recursive: true })
+    fs.mkdirSync(musicsPath, { recursive: true });
   }
-  return musicsPath
-})
+  return musicsPath;
+});
 
-ipcMain.handle('createDatabaseFolder', () => {
-  const databasePath = `${defaultPath}/database`.replace(/\\/g, '/')
+ipcMain.handle("createDatabaseFolder", () => {
+  const databasePath = `${defaultPath}/database`.replace(/\\/g, "/");
   if (!fs.existsSync(databasePath)) {
-    fs.mkdirSync(databasePath, { recursive: true })
+    fs.mkdirSync(databasePath, { recursive: true });
   }
-  return databasePath
-})
+  return databasePath;
+});
 
-ipcMain.handle('createFileDatabase', () => {
-  const databasePath = `${defaultPath}/database`.replace(/\\/g, '/')
+ipcMain.handle("createFileDatabase", () => {
+  const databasePath = `${defaultPath}/database`.replace(/\\/g, "/");
   if (!fs.existsSync(`${databasePath}/ytdown.json`)) {
-    const yt = { videos: [], musics: [] }
-    fs.writeFileSync(`${databasePath}/ytdown.json`, JSON.stringify(yt))
+    const yt = { videos: [], musics: [] };
+    fs.writeFileSync(`${databasePath}/ytdown.json`, JSON.stringify(yt));
   }
-  return `${databasePath}/ytdown.json`
-})
+  return `${databasePath}/ytdown.json`;
+});
 
-ipcMain.handle('getFolderApp', () => {
-  return defaultPath
-})
+ipcMain.handle("getFolderApp", () => {
+  return defaultPath;
+});
 
-ipcMain.handle('openFolder', async (event, folderPath) => {
+ipcMain.handle("openFolder", async (event, folderPath) => {
   try {
-    await shell.openPath(folderPath)
-    return { success: true }
+    await shell.openPath(folderPath);
+    return { success: true };
   } catch (err) {
-    log.error('Failed to open folder:', err)
-    return { success: false, error: err.message }
+    log.error("Failed to open folder:", err);
+    return { success: false, error: err.message };
   }
-})
+});
 
 // Download operations via IPC
-ipcMain.handle('downloadVideo', async (event, url) => {
+ipcMain.handle("downloadVideo", async (event, url) => {
   try {
-    const info = await ytdlp.getInfo(url)
-    const title = info.title.replace(/[!?@#$%^&*|\.\;]/g, '')
-    const outputDir = path.join(defaultPath, `videos/${title}/`)
-    createDir(outputDir)
+    const info = await ytdlp.getInfo(url);
+    const title = info.title.replace(/[!?@#$%^&*|\.\;]/g, "");
+    const outputDir = path.join(defaultPath, `videos/${title}/`);
+    createDir(outputDir);
 
     // Send initial progress
     sendToRenderer(mainWindow, "downloadProgress", {
@@ -282,9 +291,9 @@ ipcMain.handle('downloadVideo', async (event, url) => {
       title: title,
       description: info.description,
       thumbnail: `videos/${title}/${title}.jpg`,
-      src: `videos/${title}/${title}.mp4`
-    }
-    database.insertToDatabase(defaultPath, record, 'video')
+      src: `videos/${title}/${title}.mp4`,
+    };
+    database.insertToDatabase(defaultPath, record, "video");
 
     // Send completion
     sendToRenderer(mainWindow, "downloadProgress", {
@@ -293,7 +302,7 @@ ipcMain.handle('downloadVideo', async (event, url) => {
       title,
     });
 
-    return { success: true, video: record }
+    return { success: true, video: record };
   } catch (err) {
     log.error("Download video error:", err);
     sendToRenderer(mainWindow, "downloadProgress", {
@@ -303,14 +312,14 @@ ipcMain.handle('downloadVideo', async (event, url) => {
     });
     throw err;
   }
-})
+});
 
-ipcMain.handle('downloadAudio', async (event, url) => {
+ipcMain.handle("downloadAudio", async (event, url) => {
   try {
-    const info = await ytdlp.getInfo(url)
-    const title = info.title.replace(/[!?@#$%^&*|\.\;]/g, '')
-    const outputDir = path.join(defaultPath, `musics/${title}/`)
-    createDir(outputDir)
+    const info = await ytdlp.getInfo(url);
+    const title = info.title.replace(/[!?@#$%^&*|\.\;]/g, "");
+    const outputDir = path.join(defaultPath, `musics/${title}/`);
+    createDir(outputDir);
 
     // Send initial progress
     sendToRenderer(mainWindow, "downloadProgres", {
@@ -365,9 +374,9 @@ ipcMain.handle('downloadAudio', async (event, url) => {
       title: title,
       description: info.description,
       thumbnail: `musics/${title}/${title}.jpg`,
-      src: `musics/${title}/${title}.mp3`
-    }
-    database.insertToDatabase(defaultPath, record, 'mp3')
+      src: `musics/${title}/${title}.mp3`,
+    };
+    database.insertToDatabase(defaultPath, record, "mp3");
 
     // Send completion
     sendToRenderer(mainWindow, "downloadProgress", {
@@ -376,7 +385,7 @@ ipcMain.handle('downloadAudio', async (event, url) => {
       title,
     });
 
-    return { success: true, music: record, path: musicPath }
+    return { success: true, music: record, path: musicPath };
   } catch (err) {
     log.error("Download audio error:", err);
     sendToRenderer(mainWindow, "downloadProgress", {
@@ -386,17 +395,17 @@ ipcMain.handle('downloadAudio', async (event, url) => {
     });
     throw err;
   }
-})
+});
 
-ipcMain.handle('getVideoInfo', async (event, url) => {
+ipcMain.handle("getVideoInfo", async (event, url) => {
   try {
-    return await ytdlp.getInfo(url)
+    return await ytdlp.getInfo(url);
   } catch (err) {
-    log.error('Get video info error:', err)
-    throw err
+    log.error("Get video info error:", err);
+    throw err;
   }
-})
+});
 
-ipcMain.handle('getDownloads', async () => {
-  return database.readDatabase(defaultPath)
-})
+ipcMain.handle("getDownloads", async () => {
+  return database.readDatabase(defaultPath);
+});
