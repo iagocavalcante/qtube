@@ -173,7 +173,8 @@ export default configure(function (ctx) {
         publish: {
           provider: 'github',
           owner: 'iagocavalcante',
-          repo: 'qtube'
+          repo: 'qtube',
+          releaseType: 'release'
         },
         win: {
           target: 'nsis'
