@@ -108,18 +108,107 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm run publish
 
-  update-docs:
+  update-release-and-docs:
     needs: [release-mac, release-linux, release-windows]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
         with:
+          fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Get version
         id: version
         run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+
+      - name: Get previous tag
+        id: prev_tag
+        run: |
+          # Get the tag before the current version (skip current if it exists)
+          CURRENT_TAG="v${{ steps.version.outputs.version }}"
+          PREV_TAG=$(git tag --sort=-v:refname | grep -v "^${CURRENT_TAG}$" | head -n 1)
+          if [ -z "$PREV_TAG" ]; then
+            # No previous tag, use first commit
+            PREV_TAG=$(git rev-list --max-parents=0 HEAD)
+          fi
+          echo "tag=$PREV_TAG" >> $GITHUB_OUTPUT
+          echo "Previous tag: $PREV_TAG"
+
+      - name: Generate release notes
+        id: notes
+        run: |
+          PREV_TAG="${{ steps.prev_tag.outputs.tag }}"
+          VERSION="v${{ steps.version.outputs.version }}"
+
+          # Build release notes from commit history
+          {
+            echo "## What's Changed"
+            echo ""
+
+            # Features
+            FEATURES=$(git log ${PREV_TAG}..HEAD --pretty=format:"- %s" --grep="^feat" --no-merges 2>/dev/null || true)
+            if [ -n "$FEATURES" ]; then
+              echo "### New Features"
+              echo "$FEATURES"
+              echo ""
+            fi
+
+            # Fixes
+            FIXES=$(git log ${PREV_TAG}..HEAD --pretty=format:"- %s" --grep="^fix" --no-merges 2>/dev/null || true)
+            if [ -n "$FIXES" ]; then
+              echo "### Bug Fixes"
+              echo "$FIXES"
+              echo ""
+            fi
+
+            # Chores/deps
+            CHORES=$(git log ${PREV_TAG}..HEAD --pretty=format:"- %s" --grep="^chore" --no-merges 2>/dev/null || true)
+            if [ -n "$CHORES" ]; then
+              echo "### Maintenance"
+              echo "$CHORES"
+              echo ""
+            fi
+
+            # Docs
+            DOCS=$(git log ${PREV_TAG}..HEAD --pretty=format:"- %s" --grep="^docs" --no-merges 2>/dev/null || true)
+            if [ -n "$DOCS" ]; then
+              echo "### Documentation"
+              echo "$DOCS"
+              echo ""
+            fi
+
+            # Refactor
+            REFACTOR=$(git log ${PREV_TAG}..HEAD --pretty=format:"- %s" --grep="^refactor" --no-merges 2>/dev/null || true)
+            if [ -n "$REFACTOR" ]; then
+              echo "### Refactoring"
+              echo "$REFACTOR"
+              echo ""
+            fi
+
+            # Other commits (not matching conventional commit prefixes)
+            OTHER=$(git log ${PREV_TAG}..HEAD --pretty=format:"- %s" --no-merges --invert-grep --grep="^feat" --grep="^fix" --grep="^chore" --grep="^docs" --grep="^refactor" 2>/dev/null || true)
+            if [ -n "$OTHER" ]; then
+              echo "### Other Changes"
+              echo "$OTHER"
+              echo ""
+            fi
+
+            echo "---"
+            echo "**Full Changelog**: https://github.com/iagocavalcante/qtube/compare/${PREV_TAG}...${VERSION}"
+          } > release_notes.md
+
+          cat release_notes.md
+
+      - name: Update GitHub release notes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="v${{ steps.version.outputs.version }}"
+          # Wait briefly for electron-builder to finalize the release
+          sleep 10
+          # Update the release with generated notes (electron-builder already created it)
+          gh release edit "$VERSION" --notes-file release_notes.md || echo "Release $VERSION not found, skipping notes update"
 
       - name: Update docs/index.html from template
         run: |
