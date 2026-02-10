@@ -13,7 +13,7 @@ $ npm run build
 
 Any type of contribution is welcome, here are some examples of how you may contribute to this project:
 
-Before starting the contribution, read our [contributing guide](https://github.com/iagocavalcante/qtube/blob/master/CONTRIBUTING.md) and let's build a better antd together. 
+Before starting the contribution, read our [contributing guide](https://github.com/iagocavalcante/qtube/blob/master/CONTRIBUTING.md) and let's build a better qtube together. 
 
 ## Reference
 
