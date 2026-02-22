@@ -3,7 +3,7 @@
     <q-input
       ref="urlInput"
       v-model="youtubeUrl"
-      color="purple"
+      color="primary"
       label="Video URL"
       required
       outlined
@@ -16,7 +16,7 @@
       @keyup.enter="download"
     >
       <template v-slot:prepend>
-        <q-icon name="ondemand_video" color="purple" />
+        <q-icon name="ondemand_video" color="primary" />
       </template>
       <template v-slot:append>
         <q-icon
@@ -36,7 +36,7 @@
           round
           flat
           icon="content_paste"
-          color="purple"
+          color="primary"
           @click="pasteFromClipboard"
         >
           <q-tooltip>Paste from clipboard</q-tooltip>
@@ -46,14 +46,14 @@
     <q-linear-progress
       v-if="isDownloading"
       :value="downloadPercent / 100"
-      color="purple"
+      color="primary"
       class="full-width q-mb-md"
       size="20px"
       stripe
       rounded
     >
       <div class="absolute-full flex flex-center">
-        <q-badge color="white" text-color="purple" :label="`${Math.round(downloadPercent)}%`" />
+        <q-badge color="white" text-color="primary" :label="`${Math.round(downloadPercent)}%`" />
       </div>
     </q-linear-progress>
     <div v-if="isDownloading && downloadStatus" class="text-caption q-mb-md text-grey-7">
@@ -61,7 +61,7 @@
     </div>
     <div class="flex q-gutter-sm">
       <q-btn
-        color="purple"
+        color="primary"
         size="lg"
         label="Download"
         :loading="isDownloading"
@@ -73,7 +73,7 @@
           Downloading...
         </template>
       </q-btn>
-      <q-btn-dropdown icon="build" color="purple">
+      <q-btn-dropdown icon="build" color="primary">
       <q-list>
         <q-item
           v-for="(option, index) of options"
@@ -82,7 +82,7 @@
           @click="chooseType(option)"
         >
           <q-item-section avatar>
-            <q-icon name="settings" color="purple" />
+            <q-icon name="settings" color="primary" />
           </q-item-section>
           <q-item-section>
             <q-item-label :class="selectedType.type === option.type ? 'text-weight-bold' : ''">

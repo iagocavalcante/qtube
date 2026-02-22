@@ -1,7 +1,7 @@
 <template>
   <q-layout view="lHh Lpr lFf">
     <q-header>
-      <q-tabs color="purple">
+      <q-tabs color="primary">
         <q-route-tab to="/index" icon="get_app" replace label="Download" />
         <q-route-tab to="/videos" icon="perm_media" replace label="Videos" />
         <q-route-tab to="/musics" icon="queue_music" replace label="Musics" />
