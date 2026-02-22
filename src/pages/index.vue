@@ -1,6 +1,7 @@
 <template>
   <q-page class="flex flex-center column q-pa-md" style="width: 100%;">
     <q-input
+      ref="urlInput"
       v-model="youtubeUrl"
       color="purple"
       label="Video URL"
@@ -9,27 +10,37 @@
       class="full-width q-mb-md"
       :error="showValidationError"
       :error-message="validationMessage"
+      placeholder="Paste YouTube URL here..."
+      autofocus
       @update:model-value="onUrlChange"
+      @keyup.enter="download"
     >
       <template v-slot:prepend>
         <q-icon name="ondemand_video" color="purple" />
       </template>
       <template v-slot:append>
         <q-icon
-          v-if="youtubeUrl && isValidUrl"
-          name="check_circle"
-          color="positive"
-        />
-        <q-icon
-          v-else-if="youtubeUrl && !isValidUrl"
-          name="error"
-          color="negative"
+          v-if="youtubeUrl"
+          name="clear"
+          class="cursor-pointer"
+          @click="clearInput"
         />
       </template>
       <template v-slot:hint>
         <span class="text-grey-6">
           Supports: youtube.com, youtu.be, shorts, and playlists
         </span>
+      </template>
+      <template v-slot:after>
+        <q-btn
+          round
+          flat
+          icon="content_paste"
+          color="purple"
+          @click="pasteFromClipboard"
+        >
+          <q-tooltip>Paste from clipboard</q-tooltip>
+        </q-btn>
       </template>
     </q-input>
     <q-linear-progress
@@ -162,6 +173,26 @@ export default {
   methods: {
     onUrlChange () {
       this.hasInteracted = true
+    },
+    async pasteFromClipboard () {
+      try {
+        const text = await navigator.clipboard.readText()
+        if (text) {
+          this.youtubeUrl = text
+          this.hasInteracted = true
+        }
+      } catch (err) {
+        console.error('Failed to paste:', err)
+        this.$q.notify({
+          type: 'negative',
+          message: 'Failed to read clipboard'
+        })
+      }
+    },
+    clearInput () {
+      this.youtubeUrl = ''
+      this.hasInteracted = false
+      this.$refs.urlInput?.focus()
     },
     setupProgressListener () {
       if (window.electronAPI) {
