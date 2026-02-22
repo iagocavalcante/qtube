@@ -164,6 +164,11 @@ export default configure(function (ctx) {
         // https://www.electron.build/configuration/configuration
 
         appId: "qtube",
+        
+        // Compression options to reduce app size
+        asar: true,
+        compression: "maximum",
+        
         publish: {
           provider: "github",
           owner: "iagocavalcante",
