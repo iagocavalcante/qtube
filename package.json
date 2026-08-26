@@ -30,7 +30,7 @@
     "@eslint/js": "~10.0.1",
     "@quasar/app-vite": "^2.0.0-beta.21",
     "autoprefixer": "^10.4.21",
-    "electron": "^40.0.0",
+    "electron": "^41.0.0",
     "electron-builder": "^22.14.13",
     "eslint": "~10.0.0",
     "eslint-plugin-vue": "^10.0.0",
