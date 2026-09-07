@@ -31,7 +31,7 @@
     "@quasar/app-vite": "^2.0.0-beta.21",
     "autoprefixer": "^10.4.21",
     "electron": "^40.0.0",
-    "electron-builder": "^22.14.13",
+    "electron-builder": "^26.0.0",
     "eslint": "~10.0.0",
     "eslint-plugin-vue": "^10.0.0",
     "postcss": "^8.5.6"
