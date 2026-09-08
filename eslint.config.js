@@ -1,5 +1,6 @@
 import js from '@eslint/js'
 import pluginVue from 'eslint-plugin-vue'
+import globals from 'globals'
 
 export default [
   {
@@ -16,10 +17,20 @@ export default [
   ...pluginVue.configs['flat/essential'],
 
   {
+    name: 'app/vue-pages',
+    files: ['src/pages/**/*.vue', 'src/layouts/**/*.vue'],
+    rules: {
+      // Routed pages/layouts are addressed by path, not by tag name
+      'vue/multi-word-component-names': 'off',
+    },
+  },
+
+  {
     name: 'app/vue-rules',
     files: ['**/*.vue'],
     languageOptions: {
       globals: {
+        ...globals.browser,
         ga: 'readonly', // Google Analytics
         cordova: 'readonly',
         __statics: 'readonly',
@@ -35,6 +46,8 @@ export default [
     files: ['**/*.{js,mjs,jsx}'],
     languageOptions: {
       globals: {
+        ...globals.browser,
+        ...globals.node,
         ga: 'readonly',
         cordova: 'readonly',
         __statics: 'readonly',
