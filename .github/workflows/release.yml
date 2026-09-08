@@ -9,12 +9,40 @@ permissions:
   contents: write
 
 jobs:
+  bump:
+    runs-on: ubuntu-latest
+    outputs:
+      sha: ${{ steps.bump.outputs.sha }}
+      version: ${{ steps.bump.outputs.version }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+
+      - name: Bump version, commit and tag
+        id: bump
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          npm version patch -m "chore(release): v%s"
+          git push --follow-tags
+          echo "sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+          echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+
   release-mac:
+    needs: bump
     runs-on: macos-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
         with:
+          ref: ${{ needs.bump.outputs.sha }}
           fetch-depth: 0
 
       - name: Setup Node.js
@@ -49,14 +77,13 @@ jobs:
         run: npm run publish
 
   release-linux:
+    needs: bump
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
-
-      - name: Bump version
-        run: |
-          npm version patch --no-git-tag-version
+        with:
+          ref: ${{ needs.bump.outputs.sha }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -86,11 +113,13 @@ jobs:
         run: npm run publish
 
   release-windows:
+    needs: bump
     runs-on: windows-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
         with:
+          ref: ${{ needs.bump.outputs.sha }}
           fetch-depth: 0
 
       - name: Setup Node.js
@@ -122,18 +151,19 @@ jobs:
         run: npm run publish
 
   update-release-and-docs:
-    needs: [release-mac, release-linux, release-windows]
+    needs: [bump, release-mac, release-linux, release-windows]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
         with:
+          ref: main
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Get version
         id: version
-        run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+        run: echo "version=${{ needs.bump.outputs.version }}" >> $GITHUB_OUTPUT
 
       - name: Get previous tag
         id: prev_tag
