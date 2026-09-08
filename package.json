@@ -16,25 +16,27 @@
     "publish": "quasar build -m electron -P always"
   },
   "dependencies": {
-    "@quasar/extras": "^1.16.12",
-    "electron-log": "^5.2.0",
+    "@quasar/extras": "^1.18.0",
+    "electron-log": "^5.4.4",
     "electron-store": "^10.0.0",
-    "electron-updater": "^6.3.4",
+    "electron-updater": "^6.8.9",
     "pinia": "^2.2.2",
-    "quasar": "^2.16.11",
-    "vue": "^3.4.38",
+    "quasar": "^2.30.1",
+    "vue": "^3.5.42",
     "vue-i18n": "^9.14.5",
     "vue-router": "^4.4.3"
   },
   "devDependencies": {
     "@eslint/js": "~10.0.1",
-    "@quasar/app-vite": "^2.0.0-beta.21",
-    "autoprefixer": "^10.4.21",
-    "electron": "^40.0.0",
-    "electron-builder": "^22.14.13",
-    "eslint": "~10.0.0",
-    "eslint-plugin-vue": "^10.0.0",
-    "postcss": "^8.5.6"
+    "@quasar/app-vite": "^2.6.2",
+    "autoprefixer": "^10.5.5",
+    "electron": "^41.10.7",
+    "electron-builder": "^26.15.3",
+    "eslint": "~10.10.0",
+    "eslint-plugin-vue": "^10.11.0",
+    "globals": "^17.12.0",
+    "postcss": "^8.5.28",
+    "vue-eslint-parser": "^10.4.1"
   },
   "engines": {
     "node": ">=18",
